@@ -82,13 +82,6 @@ input,textarea,select,button{font-family:inherit}
 .char-actions{display:flex; gap:12px; align-items:center;}
 .char-actions button{background:none; border:none; color:var(--text); font-size:18px; cursor:pointer; padding:4px;}
 
-/* Шкала отношений */
-.relationship-bar-container{padding: 0 16px 10px 16px;}
-.rel-labels{display:flex; justify-content:space-between; font-size:14px; margin-bottom:4px; padding:0 2px;}
-.rel-track{height:12px; border-radius:6px; background:linear-gradient(to right, #cf6679, #ffd54f, #81c784, #4fc3f7, #f06292); position:relative; overflow:hidden;}
-.rel-marker{position:absolute; top:0; bottom:0; width:4px; background:white; border-radius:2px; box-shadow:0 0 4px rgba(0,0,0,0.5); transition:left 0.5s ease;}
-.rel-text{text-align:center; font-size:12px; color:var(--muted); margin-top:6px; font-weight:600;}
-
 /* Модальные окна */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(2px)}
 .modal-content{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height: 85vh; overflow-y: auto;}
@@ -155,8 +148,8 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group">
     <label>Характер</label>
     <div class="radio-group">
-      <label class="radio-label"><input type="radio" name="cfCharType" value="hide" checked onchange="toggleCharField('cfCharacter')"><span>Раскроется по ходу ролевой</span></label>
-      <label class="radio-label"><input type="radio" name="cfCharType" value="prop" onchange="toggleCharField('cfCharacter')"><span>Прописать</span></label>
+      <label class="radio-label"><input type="radio" name="cfCharType" value="hide" checked onchange="toggleCharField('cfCharacter', 'cfCharType')"><span>Раскроется по ходу ролевой</span></label>
+      <label class="radio-label"><input type="radio" name="cfCharType" value="prop" onchange="toggleCharField('cfCharacter', 'cfCharType')"><span>Прописать</span></label>
     </div>
     <textarea id="cfCharacter" class="hidden" rows="2" placeholder="Опишите характер..."></textarea>
   </div>
@@ -164,8 +157,8 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group">
     <label>Биография</label>
     <div class="radio-group">
-      <label class="radio-label"><input type="radio" name="cfBioType" value="hide" checked onchange="toggleCharField('cfBio')"><span>Раскроется по ходу ролевой</span></label>
-      <label class="radio-label"><input type="radio" name="cfBioType" value="prop" onchange="toggleCharField('cfBio')"><span>Прописать</span></label>
+      <label class="radio-label"><input type="radio" name="cfBioType" value="hide" checked onchange="toggleCharField('cfBio', 'cfBioType')"><span>Раскроется по ходу ролевой</span></label>
+      <label class="radio-label"><input type="radio" name="cfBioType" value="prop" onchange="toggleCharField('cfBio', 'cfBioType')"><span>Прописать</span></label>
     </div>
     <textarea id="cfBio" class="hidden" rows="2" placeholder="Опишите биографию..."></textarea>
   </div>
@@ -173,8 +166,8 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group">
     <label>Дополнительно</label>
     <div class="radio-group">
-      <label class="radio-label"><input type="radio" name="cfAddType" value="hide" checked onchange="toggleCharField('cfAdditional')"><span>Раскроется по ходу ролевой</span></label>
-      <label class="radio-label"><input type="radio" name="cfAddType" value="prop" onchange="toggleCharField('cfAdditional')"><span>Прописать</span></label>
+      <label class="radio-label"><input type="radio" name="cfAddType" value="hide" checked onchange="toggleCharField('cfAdditional', 'cfAddType')"><span>Раскроется по ходу ролевой</span></label>
+      <label class="radio-label"><input type="radio" name="cfAddType" value="prop" onchange="toggleCharField('cfAdditional', 'cfAddType')"><span>Прописать</span></label>
     </div>
     <textarea id="cfAdditional" class="hidden" rows="2" placeholder="Дополнительная информация..."></textarea>
   </div>
@@ -221,23 +214,12 @@ input,textarea,select,button{font-family:inherit}
 
 <!-- ЭКРАН: ЧАТ -->
 <div id="screen-chat" class="screen" style="padding:0;">
-  <div class="header-bar" style="padding:16px 16px 0 16px; margin-bottom:0;">
+  <div class="header-bar" style="padding:16px 16px 0 16px; margin-bottom:16px;">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
     <h2 id="chatTitle">Ролевая</h2>
     <button class="btn btn-secondary btn-small" onclick="openQuests()">🚩</button>
     <button class="btn btn-secondary btn-small" onclick="toggleNotes()">📝</button>
     <button class="btn btn-secondary btn-small" onclick="editCurrentRole()">✎</button>
-  </div>
-
-  <!-- Шкала отношений -->
-  <div class="relationship-bar-container" id="relBarContainer">
-    <div class="rel-labels">
-      <span>🤬</span><span>😐</span><span>😄</span><span>😊</span><span>😍</span>
-    </div>
-    <div class="rel-track">
-      <div class="rel-marker" id="relMarker" style="left: 50%;"></div>
-    </div>
-    <div class="rel-text" id="relText">Нейтрально</div>
   </div>
 
   <div id="chatMessages" class="chat-messages" style="padding:0 16px;"></div>
@@ -433,7 +415,6 @@ let currentRoleId=null, allRoles=[], allFolders=[], allChars=[], editingRoleId=n
 let editingCharId=null;
 let currentFolderVal='';
 let currentCharVal='';
-let currentRelValue=50;
 let isDiceActive=false;
 let settings={gemini:'',deepseek:'',autoSwitch:false};
 let colors={bg:'#121212',userMsg:'#bb86fc',userText:'#000000',botMsg:'#1e1e1e',botText:'#e0e0e0',btn:'#bb86fc',btnText:'#000000',inputBg:'#1e1e1e',inputText:'#e0e0e0',text:'#e0e0e0'};
@@ -594,8 +575,8 @@ async function confirmDeleteChar() {
   renderCharGallery();
 }
 
-function toggleCharField(id){
-  const selected = document.querySelector(`input[name="${id.replace('cf','cf')}Type"]:checked`);
+function toggleCharField(id, radioName){
+  const selected = document.querySelector(`input[name="${radioName}"]:checked`);
   if(selected && selected.value === 'prop') document.getElementById(id).classList.remove('hidden');
   else document.getElementById(id).classList.add('hidden');
 }
@@ -640,7 +621,6 @@ async function openRoleForm(role, fromChat = false){
   editingModel=role?role.model:'gemini';
   currentFolderVal = role?role.folder:'';
   currentCharVal = role?role.myCharId:'';
-  currentRelValue = role? (role.relationship !== undefined ? role.relationship : 50) : 50;
   
   document.getElementById('roleFormTitle').textContent=role?'Редактировать':'Новая ролевая';
   document.getElementById('rfName').value=role?role.name:'';
@@ -691,8 +671,7 @@ async function saveRole(){
   const data={
     name:document.getElementById('rfName').value.trim(), folder: currentFolderVal, model:editingModel,
     myCharId: currentCharVal, length:document.getElementById('rfLength').value, world:document.getElementById('rfWorld').value, plot:document.getElementById('rfPlot').value,
-    details:document.getElementById('rfDetails').value, character:document.getElementById('rfChar').value, secondary:document.getElementById('rfSecondary').value,
-    relationship: currentRelValue
+    details:document.getElementById('rfDetails').value, character:document.getElementById('rfChar').value, secondary:document.getElementById('rfSecondary').value
   };
   if(!data.name){ showAlert('Введите название!'); return; }
   
@@ -700,6 +679,7 @@ async function saveRole(){
     data.id=editingRoleId;
     const oldRole = await dbGet('roles', editingRoleId);
     if(oldRole && oldRole.isFavorite) data.isFavorite = true;
+    if(oldRole && oldRole.relationship) data.relationship = oldRole.relationship;
     await dbPut('roles',data);
   } else {
     data.createdAt=Date.now(); data.isFavorite = false;
@@ -716,7 +696,7 @@ async function saveRole(){
 
 function editCurrentRole(){ 
   const r=allRoles.find(x=>x.id===currentRoleId); 
-  if(r) openRoleForm(r, true); // Передаем true, чтобы вернуться в чат
+  if(r) openRoleForm(r, true); 
 }
 
 // ===== ПАПКИ =====
@@ -751,22 +731,8 @@ async function openChat(id){
   currentRoleId=id; const r=allRoles.find(x=>x.id===id);
   if(!r) return;
   document.getElementById('chatTitle').textContent=r.name;
-  updateRelationshipBar(r.relationship !== undefined ? r.relationship : 50);
   showScreen('screen-chat'); await loadMessages(id); await loadNotes(id);
   document.getElementById('chatInput').focus();
-}
-
-function updateRelationshipBar(val){
-  currentRelValue = val;
-  const marker = document.getElementById('relMarker');
-  const text = document.getElementById('relText');
-  marker.style.left = `${val}%`;
-  
-  if(val <= 20) text.textContent = 'Ненависть и отвращение';
-  else if(val <= 40) text.textContent = 'Прохладно, настороженно';
-  else if(val <= 60) text.textContent = 'Нейтрально';
-  else if(val <= 80) text.textContent = 'Дружески и тепло';
-  else text.textContent = 'Симпатия и привязанность';
 }
 
 async function loadMessages(id){
@@ -927,7 +893,6 @@ async function doRework(type, instruction){
     document.getElementById('waitMsg')?.remove();
     await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now()});
     await loadMessages(currentRoleId);
-    await checkRelationshipUpdate(reply, r);
   } catch(e) { document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message); }
 }
 
@@ -967,30 +932,8 @@ async function generateBotReply(userDice = null){
     document.getElementById('waitMsg')?.remove();
     await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now(), diceRoll: botDice});
     await loadMessages(currentRoleId);
-    await checkRelationshipUpdate(reply, r);
   }catch(e){
     document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message);
-  }
-}
-
-async function checkRelationshipUpdate(botReply, role) {
-  // Используем скрытую инструкцию для бота, чтобы он сам ставил оценку. 
-  // Так как мы не можем заставить его вернуть JSON, мы ищем маркер в тексте.
-  // Но пока используем простую логику:
-  let change = 0;
-  const lowerReply = botReply.toLowerCase();
-  if(lowerReply.match(/улыб|нежн|смех|благодар|тепл|обня|смутил|рад|согласи/)) change = 2;
-  if(lowerReply.match(/груб|зл|крич|удар|отверг|презр|хмур|напряг|отказ/)) change = -2;
-  
-  if(change !== 0) {
-     let newVal = (role.relationship || 50) + change;
-     if(newVal > 100) newVal = 100;
-     if(newVal < 0) newVal = 0;
-     if(newVal !== role.relationship) {
-       role.relationship = newVal;
-       await dbPut('roles', role);
-       updateRelationshipBar(newVal);
-     }
   }
 }
 
@@ -1057,4 +1000,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-  </html>
+        </html>
