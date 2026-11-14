@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#121212">
-<title>Мои Ролевые</title>
+<title>𝙆𝙚𝙟𝙟</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{
@@ -30,7 +30,9 @@ input,textarea,select,button{font-family:inherit}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .btn-small{padding:8px 14px;font-size:14px}
 .header-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.header-bar h1{flex:1;font-size:24px; letter-spacing: 1px;}
 .header-bar h2{flex:1;font-size:20px}
+
 .chat-messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:12px;padding:4px}
 .msg-container{display:flex;flex-direction:column;max-width:85%;position:relative}
 .msg-container.user{align-self:flex-end;align-items:flex-end}
@@ -59,13 +61,27 @@ input,textarea,select,button{font-family:inherit}
 .switch-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .switch-row label{font-size:14px}
 .switch-row input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent)}
+
 /* Модальные окна */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(2px)}
-.modal-content{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+.modal-content{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height: 90vh; overflow-y: auto;}
 .modal-content h3{text-align:center;margin-bottom:8px;font-size:18px}
 .modal-content button{padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;cursor:pointer;text-align:left;transition:0.2s}
 .modal-content button:active{background:var(--btn-bg);color:var(--btn-text)}
 .modal-content textarea{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--input-text);padding:12px;font-size:15px;min-height:120px;resize:vertical;outline:none;}
+
+/* Кастомные радио-кнопки для характера */
+.radio-group{display:flex; flex-direction:column; gap:8px; margin-bottom:8px;}
+.radio-label{display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--border); border-radius:12px; cursor:pointer; background:var(--surface2);}
+.radio-label input[type="radio"]{width:20px; height:20px; accent-color:var(--btn-bg);}
+.radio-label span{font-size:15px;}
+
+/* Сетка для карточек персонажей */
+.char-grid{display:grid; grid-template-columns:1fr; gap:12px;}
+.char-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; cursor:pointer;}
+.char-card:active{background:var(--surface2);}
+.char-card h4{font-size:18px; margin-bottom:6px; color:var(--accent);}
+.char-card p{font-size:14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 </style>
 </head>
 <body>
@@ -73,14 +89,67 @@ input,textarea,select,button{font-family:inherit}
 <!-- ЭКРАН: КАТАЛОГ -->
 <div id="screen-catalog" class="screen active">
   <div class="header-bar">
-    <h2>Мои Ролевые</h2>
+    <h1>𝙆𝙚𝙟𝙟</h1>
     <button class="btn btn-small" onclick="openRoleForm()">+ Ролевая</button>
+    <button class="btn btn-secondary btn-small" onclick="openCharMenu()">+ Мой персонаж</button>
     <button class="btn btn-secondary btn-small" onclick="openFolderForm()">+ Папка</button>
     <button class="btn btn-secondary btn-small" onclick="openSettings()">⚙</button>
   </div>
   <input type="text" class="search-bar" id="searchInput" placeholder="Поиск по названию..." oninput="renderCatalog()">
   <div id="foldersContainer" class="folder-grid"></div>
   <div id="rolesContainer" class="role-list"></div>
+</div>
+
+<!-- ЭКРАН: ГАЛЕРЕЯ ПЕРСОНАЖЕЙ -->
+<div id="screen-chargallery" class="screen">
+  <div class="header-bar">
+    <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
+    <h2>Галерея персонажей</h2>
+    <button class="btn btn-small" onclick="openCharForm()">+ Создать</button>
+  </div>
+  <div id="charsContainer" class="char-grid"></div>
+</div>
+
+<!-- ЭКРАН: ФОРМА ПЕРСОНАЖА -->
+<div id="screen-charform" class="screen">
+  <div class="header-bar">
+    <button class="btn btn-secondary btn-small" onclick="backToCharGallery()">← Назад</button>
+    <h2>Мой персонаж</h2>
+  </div>
+  <div class="form-group"><label>Имя персонажа (обязательно)</label><input id="cfName" placeholder="Например: Аркадий"></div>
+  <div class="form-group"><label>Внешность</label><textarea id="cfAppearance" rows="2" placeholder="Описание внешности..."></textarea></div>
+  
+  <div class="form-group">
+    <label>Характер</label>
+    <div class="radio-group">
+      <label class="radio-label"><input type="radio" name="cfCharType" value="prop" onchange="toggleCharField('cfCharacter')"><span>Прописать</span></label>
+      <label class="radio-label"><input type="radio" name="cfCharType" value="hide" checked onchange="toggleCharField('cfCharacter')"><span>Раскроется по ходу ролевой</span></label>
+    </div>
+    <textarea id="cfCharacter" class="hidden" rows="2" placeholder="Опишите характер..."></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Биография</label>
+    <div class="radio-group">
+      <label class="radio-label"><input type="radio" name="cfBioType" value="prop" onchange="toggleCharField('cfBio')"><span>Прописать</span></label>
+      <label class="radio-label"><input type="radio" name="cfBioType" value="hide" checked onchange="toggleCharField('cfBio')"><span>Раскроется по ходу ролевой</span></label>
+    </div>
+    <textarea id="cfBio" class="hidden" rows="2" placeholder="Опишите биографию..."></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Дополнительно</label>
+    <div class="radio-group">
+      <label class="radio-label"><input type="radio" name="cfAddType" value="prop" onchange="toggleCharField('cfAdditional')"><span>Прописать</span></label>
+      <label class="radio-label"><input type="radio" name="cfAddType" value="hide" checked onchange="toggleCharField('cfAdditional')"><span>Раскроется по ходу ролевой</span></label>
+    </div>
+    <textarea id="cfAdditional" class="hidden" rows="2" placeholder="Дополнительная информация..."></textarea>
+  </div>
+
+  <div class="settings-row">
+    <button class="btn" onclick="saveCharacter()">Сохранить</button>
+    <button class="btn btn-secondary" onclick="deleteCurrentChar()" id="cfDeleteBtn" style="display:none;">Удалить</button>
+  </div>
 </div>
 
 <!-- ЭКРАН: ФОРМА РОЛЕВОЙ -->
@@ -91,6 +160,7 @@ input,textarea,select,button{font-family:inherit}
   </div>
   <div class="form-group"><label>Название</label><input id="rfName" placeholder="Например: Тёмный лес"></div>
   <div class="form-group"><label>Папка</label><select id="rfFolder"></select></div>
+  <div class="form-group"><label>Мой персонаж в этой ролевой</label><select id="rfMyChar"></select></div>
   <div class="form-group"><label>Модель по умолчанию</label>
     <div class="model-switch">
       <button type="button" id="btnGemini" onclick="pickModel('gemini')">Gemini</button>
@@ -180,6 +250,16 @@ input,textarea,select,button{font-family:inherit}
   <button class="btn" onclick="saveFolder()">Сохранить</button>
 </div>
 
+<!-- МОДАЛЬНОЕ ОКНО: МЕНЮ ПЕРСОНАЖЕЙ -->
+<div id="modalCharMenu" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3>Мои персонажи</h3>
+    <button onclick="openCharForm()">Создать</button>
+    <button onclick="openCharGallery()">Галерея</button>
+    <button class="btn-secondary" onclick="document.getElementById('modalCharMenu').classList.add('hidden')" style="text-align:center;margin-top:8px;background:transparent;border:none;">Отмена</button>
+  </div>
+</div>
+
 <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
 <div id="modalEdit" class="modal-overlay hidden">
   <div class="modal-content">
@@ -204,18 +284,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО ДЛЯ ВВОДА -->
-<div id="modalPrompt" class="modal-overlay hidden">
-  <div class="modal-content">
-    <h3 id="promptTitle">Введите данные</h3>
-    <textarea id="promptInput" style="min-height: 60px; height: 60px;"></textarea>
-    <div style="display:flex; gap:10px;">
-      <button class="btn" style="flex:1;" onclick="confirmPrompt()">ОК</button>
-      <button class="btn btn-secondary" style="flex:1;" onclick="closePrompt()">Отмена</button>
-    </div>
-  </div>
-</div>
-
 <!-- МОДАЛЬНОЕ ОКОШКО ДЛЯ ПРЕДУПРЕЖДЕНИЙ -->
 <div id="modalAlert" class="modal-overlay hidden">
   <div class="modal-content">
@@ -228,8 +296,8 @@ input,textarea,select,button{font-family:inherit}
 <script>
 // ===== БАЗА ДАННЫХ =====
 let db;
-const DB_NAME='RoleplayDB', DB_VERSION=1;
-function initDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onerror=()=>rej(r.error);r.onsuccess=()=>{db=r.result;res()};r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('roles'))d.createObjectStore('roles',{keyPath:'id',autoIncrement:true});if(!d.objectStoreNames.contains('messages')){const s=d.createObjectStore('messages',{keyPath:'id',autoIncrement:true});s.createIndex('roleId','roleId',{unique:false})}if(!d.objectStoreNames.contains('notes'))d.createObjectStore('notes',{keyPath:'roleId'});if(!d.objectStoreNames.contains('folders'))d.createObjectStore('folders',{keyPath:'id',autoIncrement:true})}})}
+const DB_NAME='RoleplayDB', DB_VERSION=2;
+function initDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onerror=()=>rej(r.error);r.onsuccess=()=>{db=r.result;res()};r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('roles'))d.createObjectStore('roles',{keyPath:'id',autoIncrement:true});if(!d.objectStoreNames.contains('messages')){const s=d.createObjectStore('messages',{keyPath:'id',autoIncrement:true});s.createIndex('roleId','roleId',{unique:false})}if(!d.objectStoreNames.contains('notes'))d.createObjectStore('notes',{keyPath:'roleId'});if(!d.objectStoreNames.contains('folders'))d.createObjectStore('folders',{keyPath:'id',autoIncrement:true});if(!d.objectStoreNames.contains('characters'))d.createObjectStore('characters',{keyPath:'id',autoIncrement:true})}})}
 function dbAll(s){return new Promise((res,rej)=>{const t=db.transaction(s,'readonly');const r=t.objectStore(s).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 function dbAdd(s,d){return new Promise((res,rej)=>{const t=db.transaction(s,'readwrite');const r=t.objectStore(s).add(d);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 function dbPut(s,d){return new Promise((res,rej)=>{const t=db.transaction(s,'readwrite');const r=t.objectStore(s).put(d);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
@@ -238,36 +306,24 @@ function dbDel(s,k){return new Promise((res,rej)=>{const t=db.transaction(s,'rea
 function dbByIndex(s,i,v){return new Promise((res,rej)=>{const t=db.transaction(s,'readonly');const r=t.objectStore(s).index(i).getAll(v);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 
 // ===== ПЕРЕМЕННЫЕ =====
-let currentRoleId=null, allRoles=[], allFolders=[], editingRoleId=null, editingModel='gemini';
+let currentRoleId=null, allRoles=[], allFolders=[], allChars=[], editingRoleId=null, editingModel='gemini';
+let currentCharId=null, editingCharId=null;
 let settings={gemini:'',deepseek:'',autoSwitch:false};
 let colors={bg:'#121212',userMsg:'#bb86fc',userText:'#000000',botMsg:'#1e1e1e',botText:'#e0e0e0',btn:'#bb86fc',btnText:'#000000',inputBg:'#1e1e1e',inputText:'#e0e0e0',text:'#e0e0e0'};
 const defaultColors={...colors};
 let reworkMessageId=null;
 let editingMessageId=null;
 
-// ===== СВОИ ОКОШКИ =====
-let promptCallback = null;
-function showPrompt(title, defaultValue, callback) {
-  document.getElementById('promptTitle').textContent = title;
-  document.getElementById('promptInput').value = defaultValue || '';
-  promptCallback = callback;
-  document.getElementById('modalPrompt').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('promptInput').focus(), 100);
-}
-function closePrompt() { document.getElementById('modalPrompt').classList.add('hidden'); promptCallback = null; }
-function confirmPrompt() {
-  const val = document.getElementById('promptInput').value.trim();
-  if (promptCallback) { const cb = promptCallback; closePrompt(); cb(val); }
-}
-function showAlert(msg) {
-  document.getElementById('alertText').textContent = msg;
-  document.getElementById('modalAlert').classList.remove('hidden');
-}
+// ===== ОКОШКИ =====
+function showAlert(msg) { document.getElementById('alertText').textContent = msg; document.getElementById('modalAlert').classList.remove('hidden'); }
 function closeAlert() { document.getElementById('modalAlert').classList.add('hidden'); }
 
 // ===== НАВИГАЦИЯ =====
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
 function backToCatalog(){showScreen('screen-catalog');renderCatalog()}
+function openCharMenu(){ document.getElementById('modalCharMenu').classList.remove('hidden'); }
+function openCharGallery(){ document.getElementById('modalCharMenu').classList.add('hidden'); renderCharGallery(); showScreen('screen-chargallery'); }
+function backToCharGallery(){ showScreen('screen-chargallery'); renderCharGallery(); }
 
 // ===== ПРИМЕНЕНИЕ ЦВЕТОВ =====
 function applyColors(){
@@ -306,6 +362,100 @@ async function renderCatalog(){
 }
 function escapeHtml(t){return String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
+// ===== ПЕРСОНАЖИ =====
+async function renderCharGallery(){
+  allChars = await dbAll('characters');
+  const c = document.getElementById('charsContainer');
+  c.innerHTML = '';
+  if(allChars.length === 0) { c.innerHTML = '<p style="color:var(--muted);text-align:center;">Пока нет персонажей...</p>'; return; }
+  allChars.forEach(char => {
+    const card = document.createElement('div');
+    card.className = 'char-card';
+    card.innerHTML = `<h4>${escapeHtml(char.name)}</h4><p>${escapeHtml(char.appearance || 'Без внешности')}</p>`;
+    card.onclick = () => openCharForm(char);
+    c.appendChild(card);
+  });
+}
+
+function toggleCharField(id){
+  const el = document.getElementById(id);
+  const radios = document.getElementsByName(id.replace('cf','cf')+'Type'); 
+  // Простая логика: если выбран "Прописать" - показываем, иначе скрываем
+  const selected = document.querySelector(`input[name="${id.replace('cf','cf')}Type"]:checked`);
+  if(selected && selected.value === 'prop') el.classList.remove('hidden');
+  else el.classList.add('hidden');
+}
+
+async function openCharForm(char){
+  editingCharId = char ? char.id : null;
+  document.getElementById('cfName').value = char ? char.name : '';
+  document.getElementById('cfAppearance').value = char ? char.appearance : '';
+  
+  // Сброс радио-кнопок
+  document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+  
+  // Характер
+  document.getElementById('cfCharacter').value = char ? char.character : '';
+  document.getElementById('cfCharacter').classList.add('hidden');
+  if(char && char.character) {
+    document.querySelector('input[name="cfCharType"][value="prop"]').checked = true;
+    document.getElementById('cfCharacter').classList.remove('hidden');
+  } else {
+    document.querySelector('input[name="cfCharType"][value="hide"]').checked = true;
+  }
+
+  // Биография
+  document.getElementById('cfBio').value = char ? char.bio : '';
+  document.getElementById('cfBio').classList.add('hidden');
+  if(char && char.bio) {
+    document.querySelector('input[name="cfBioType"][value="prop"]').checked = true;
+    document.getElementById('cfBio').classList.remove('hidden');
+  } else {
+    document.querySelector('input[name="cfBioType"][value="hide"]').checked = true;
+  }
+
+  // Дополнительно
+  document.getElementById('cfAdditional').value = char ? char.additional : '';
+  document.getElementById('cfAdditional').classList.add('hidden');
+  if(char && char.additional) {
+    document.querySelector('input[name="cfAddType"][value="prop"]').checked = true;
+    document.getElementById('cfAdditional').classList.remove('hidden');
+  } else {
+    document.querySelector('input[name="cfAddType"][value="hide"]').checked = true;
+  }
+
+  document.getElementById('cfDeleteBtn').style.display = char ? 'inline-block' : 'none';
+  showScreen('screen-charform');
+}
+
+async function saveCharacter(){
+  const name = document.getElementById('cfName').value.trim();
+  if(!name){ showAlert('Заполни имя персонажа!'); return; }
+
+  const charData = {
+    name,
+    appearance: document.getElementById('cfAppearance').value.trim(),
+    character: document.querySelector('input[name="cfCharType"]:checked').value === 'prop' ? document.getElementById('cfCharacter').value.trim() : '',
+    bio: document.querySelector('input[name="cfBioType"]:checked').value === 'prop' ? document.getElementById('cfBio').value.trim() : '',
+    additional: document.querySelector('input[name="cfAddType"]:checked').value === 'prop' ? document.getElementById('cfAdditional').value.trim() : ''
+  };
+
+  if(editingCharId){
+    charData.id = editingCharId;
+    await dbPut('characters', charData);
+  } else {
+    await dbAdd('characters', charData);
+  }
+  backToCharGallery();
+}
+
+async function deleteCurrentChar(){
+  if(!editingCharId) return;
+  if(!confirm('Удалить персонажа?')) return;
+  await dbDel('characters', editingCharId);
+  backToCharGallery();
+}
+
 // ===== ФОРМА РОЛЕВОЙ =====
 async function openRoleForm(role){
   editingRoleId=role?role.id:null;
@@ -320,15 +470,30 @@ async function openRoleForm(role){
   document.getElementById('rfLength').value=role?role.length||'':'';
   document.getElementById('rfDeleteBtn').style.display=role?'inline-block':'none';
   pickModel(editingModel);
+  
   allFolders=await dbAll('folders');
   const sel=document.getElementById('rfFolder');sel.innerHTML='<option value="">Без папки</option>';
   allFolders.forEach(f=>{const o=document.createElement('option');o.value=f.name;o.textContent=f.name;if(role&&role.folder===f.name)o.selected=true;sel.appendChild(o)});
+
+  // Заполняем список персонажей
+  allChars = await dbAll('characters');
+  const selChar = document.getElementById('rfMyChar');
+  selChar.innerHTML = '<option value="">Не выбран</option>';
+  allChars.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.id;
+    o.textContent = c.name;
+    if(role && role.myCharId == c.id) o.selected = true;
+    selChar.appendChild(o);
+  });
+
   showScreen('screen-roleform');
 }
 function pickModel(m){ editingModel=m; document.getElementById('btnGemini').classList.toggle('selected',m==='gemini'); document.getElementById('btnDeepseek').classList.toggle('selected',m==='deepseek'); }
 async function saveRole(){
   const data={
     name:document.getElementById('rfName').value.trim(), folder:document.getElementById('rfFolder').value, model:editingModel,
+    myCharId: document.getElementById('rfMyChar').value,
     length:document.getElementById('rfLength').value, world:document.getElementById('rfWorld').value, plot:document.getElementById('rfPlot').value,
     details:document.getElementById('rfDetails').value, character:document.getElementById('rfChar').value, secondary:document.getElementById('rfSecondary').value
   };
@@ -522,12 +687,26 @@ async function callAI(role, contextMsgs, extraInstruction, key){
     secondaryRule = `\nВторостепенные персонажи (используй для фона, не перетягивай на них внимание): ${role.secondary}`;
   }
 
+  // Формируем карточку МОЕГО персонажа
+  let myCharRule = '';
+  if(role.myCharId) {
+    const myChar = allChars.find(c => c.id == role.myCharId);
+    if(myChar) {
+      myCharRule = `\n--- ТВОЙ ПЕРСОНАЖ (ИГРОКА) ---\nИмя: ${myChar.name}\nВнешность: ${myChar.appearance||'не указана'}\n`;
+      if(myChar.character) myCharRule += `Характер: ${myChar.character}\n`;
+      if(myChar.bio) myCharRule += `Биография: ${myChar.bio}\n`;
+      if(myChar.additional) myCharRule += `Дополнительно: ${myChar.additional}\n`;
+      myCharRule += `ВНИМАНИЕ: Этот персонаж принадлежит игроку. КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО описывать его действия, мысли или эмоции без прямого указания игрока.`;
+    }
+  }
+
   const sys = `${globalPrompt}
 --- ДАННЫЕ РОЛЕВОЙ ---
 Вселенная: ${role.world||'не указана'}
 Сюжет: ${role.plot||'не указан'}
 Детали мира: ${role.details||'не указаны'}
-Главный персонаж (твой): ${role.character||'не указан'}${secondaryRule}
+Главный персонаж (твой, NPC): ${role.character||'не указан'}${secondaryRule}
+${myCharRule}
 Память (важное): ${mem||'пока пусто'}${lengthRule}
 ${extraInstruction ? `\nСПЕЦИАЛЬНАЯ ИНСТРУКЦИЯ: ${extraInstruction}` : ''}`;
 
@@ -557,4 +736,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-</html>
+                                                                                                                                               </html>
