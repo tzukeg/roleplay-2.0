@@ -31,7 +31,6 @@ input,textarea,select,button{font-family:inherit}
 .btn:active{opacity:0.8}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .btn-small{padding:8px 14px;font-size:14px}
-.btn-danger{background:#cf6679; color:#000;}
 .header-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .header-bar h1{flex:1;font-size:24px; letter-spacing: 1px;}
 .header-bar h2{flex:1;font-size:20px}
@@ -80,13 +79,14 @@ input,textarea,select,button{font-family:inherit}
 .char-list{display:flex; flex-direction:column; gap:8px;}
 .char-item{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; display:flex; justify-content:space-between; align-items:center;}
 .char-item h4{font-size:16px; font-weight:600;}
-.char-item button{background:none; border:none; color:var(--text); font-size:18px; cursor:pointer; padding:4px;}
+.char-actions{display:flex; gap:12px; align-items:center;}
+.char-actions button{background:none; border:none; color:var(--text); font-size:18px; cursor:pointer; padding:4px;}
 
 /* Шкала отношений */
 .relationship-bar-container{padding: 0 16px 10px 16px;}
 .rel-labels{display:flex; justify-content:space-between; font-size:14px; margin-bottom:4px; padding:0 2px;}
 .rel-track{height:12px; border-radius:6px; background:linear-gradient(to right, #cf6679, #ffd54f, #81c784, #4fc3f7, #f06292); position:relative; overflow:hidden;}
-.rel-marker{position:absolute; top:0; bottom:0; width:4px; background:white; border-radius:2px; box-shadow:0 0 4px rgba(0,0,0,0.5); transition:left 0.3s ease;}
+.rel-marker{position:absolute; top:0; bottom:0; width:4px; background:white; border-radius:2px; box-shadow:0 0 4px rgba(0,0,0,0.5); transition:left 0.5s ease;}
 .rel-text{text-align:center; font-size:12px; color:var(--muted); margin-top:6px; font-weight:600;}
 
 /* Модальные окна */
@@ -114,8 +114,6 @@ input,textarea,select,button{font-family:inherit}
 .quest-item span{flex:1;}
 .quest-actions{display:flex; gap:8px;}
 .quest-actions button{background:none; border:none; color:var(--text); cursor:pointer; font-size:16px;}
-
-/* Карта и топология (пока нет, но оставил классы) */
 </style>
 </head>
 <body>
@@ -227,6 +225,7 @@ input,textarea,select,button{font-family:inherit}
   <div class="header-bar" style="padding:16px 16px 0 16px; margin-bottom:0;">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
     <h2 id="chatTitle">Ролевая</h2>
+    <button class="btn btn-secondary btn-small" onclick="openQuests()">🚩</button>
     <button class="btn btn-secondary btn-small" onclick="toggleNotes()">📝</button>
     <button class="btn btn-secondary btn-small" onclick="editCurrentRole()">✎</button>
   </div>
@@ -391,19 +390,30 @@ input,textarea,select,button{font-family:inherit}
     <div id="lpActions">
       <div class="action-buttons">
         <button class="icon-btn" onclick="editFromLongPress()">✎</button>
-        <button class="icon-btn del" onclick="showDeleteConfirm()">🗑</button>
+        <button class="icon-btn del" onclick="showDeleteConfirm()">❌</button>
       </div>
     </div>
 
     <div id="lpDeleteConfirm" class="hidden">
-      <p style="text-align:center; font-size:16px; margin-bottom:12px; color:var(--text);">Удалить ролевую?</p>
+      <p style="text-align:center; font-size:16px; margin-bottom:12px; color:var(--text);">Удалить?</p>
       <div style="display:flex; gap:10px;">
-        <button class="btn btn-danger" style="flex:1;" onclick="confirmDeleteRole()">Да</button>
-        <button class="btn btn-secondary" style="flex:1;" onclick="closeLongPress()">Нет</button>
+        <button class="btn" style="flex:1; background:transparent; color:#cf6679; border:none; font-size:18px;" onclick="confirmDeleteRole()">Да</button>
+        <button class="btn" style="flex:1; background:transparent; color:var(--text); border:none; font-size:18px;" onclick="closeLongPress()">Нет</button>
       </div>
     </div>
 
     <button class="btn-secondary" onclick="closeLongPress()" style="text-align:center;background:transparent;border:none;margin-top:8px;">Отмена</button>
+  </div>
+</div>
+
+<!-- ОКОШКО УДАЛЕНИЯ ПЕРСОНАЖА -->
+<div id="modalCharDelete" class="action-menu-overlay hidden">
+  <div class="action-menu-content">
+    <h3>Удалить?</h3>
+    <div style="display:flex; gap:10px;">
+      <button class="btn" style="flex:1; background:transparent; color:#cf6679; border:none; font-size:18px;" onclick="confirmDeleteChar()">Да</button>
+      <button class="btn" style="flex:1; background:transparent; color:var(--text); border:none; font-size:18px;" onclick="document.getElementById('modalCharDelete').classList.add('hidden')">Нет</button>
+    </div>
   </div>
 </div>
 
@@ -425,7 +435,6 @@ let editingCharId=null;
 let currentFolderVal='';
 let currentCharVal='';
 let currentRelValue=50;
-let currentQuests=[];
 let isDiceActive=false;
 let settings={gemini:'',deepseek:'',autoSwitch:false};
 let colors={bg:'#121212',userMsg:'#bb86fc',userText:'#000000',botMsg:'#1e1e1e',botText:'#e0e0e0',btn:'#bb86fc',btnText:'#000000',inputBg:'#1e1e1e',inputText:'#e0e0e0',text:'#e0e0e0'};
@@ -433,6 +442,7 @@ const defaultColors={...colors};
 let reworkMessageId=null;
 let editingMessageId=null;
 let lpRoleId=null;
+let editingCharIdForDelete=null;
 let isEditingRoleFromChat = false; 
 
 // ===== ОКОШКИ =====
@@ -469,7 +479,6 @@ async function renderCatalog(){
   const term=(document.getElementById('searchInput').value||'').toLowerCase();
   allRoles=await dbAll('roles');allFolders=await dbAll('folders');
   
-  // Сортировка: сначала избранные
   allRoles.sort((a,b) => {
     if(a.isFavorite && !b.isFavorite) return -1;
     if(!a.isFavorite && b.isFavorite) return 1;
@@ -493,8 +502,6 @@ async function renderCatalog(){
     const fol=allFolders.find(f=>f.name===r.folder);
     const color=fol?fol.color:colors.btn;
     const i=document.createElement('div');i.className='role-item';
-    
-    // Звездочка для избранного
     const star = r.isFavorite ? '⭐' : '☆';
     
     i.innerHTML = `
@@ -567,11 +574,27 @@ async function renderCharGallery(){
   if(allChars.length === 0) { c.innerHTML = '<p style="color:var(--muted);text-align:center;margin-top:20px;">Пока нет персонажей...</p>'; return; }
   allChars.forEach(char => {
     const item = document.createElement('div'); item.className = 'char-item';
-    item.innerHTML = `<h4>${escapeHtml(char.name)}</h4><button onclick="editChar(${char.id})">✎</button>`;
+    item.innerHTML = `<h4>${escapeHtml(char.name)}</h4>
+      <div class="char-actions">
+        <button onclick="editChar(${char.id})">✎</button>
+        <button onclick="openCharDeleteModal(${char.id})" style="color:#cf6679;">❌</button>
+      </div>`;
     c.appendChild(item);
   });
 }
 function editChar(id){ const char = allChars.find(c => c.id === id); if(char) openCharForm(char); }
+
+function openCharDeleteModal(id) {
+  editingCharIdForDelete = id;
+  document.getElementById('modalCharDelete').classList.remove('hidden');
+}
+async function confirmDeleteChar() {
+  if(!editingCharIdForDelete) return;
+  await dbDel('characters', editingCharIdForDelete);
+  document.getElementById('modalCharDelete').classList.add('hidden');
+  renderCharGallery();
+}
+
 function toggleCharField(id){
   const selected = document.querySelector(`input[name="${id.replace('cf','cf')}Type"]:checked`);
   if(selected && selected.value === 'prop') document.getElementById(id).classList.remove('hidden');
@@ -583,15 +606,19 @@ async function openCharForm(char){
   document.getElementById('cfName').value = char ? char.name : '';
   document.getElementById('cfAppearance').value = char ? char.appearance : '';
   document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+  
   document.getElementById('cfCharacter').value = char ? char.character : '';
   if(char && char.character) { document.querySelector('input[name="cfCharType"][value="prop"]').checked = true; document.getElementById('cfCharacter').classList.remove('hidden'); }
   else { document.querySelector('input[name="cfCharType"][value="hide"]').checked = true; document.getElementById('cfCharacter').classList.add('hidden'); }
+  
   document.getElementById('cfBio').value = char ? char.bio : '';
   if(char && char.bio) { document.querySelector('input[name="cfBioType"][value="prop"]').checked = true; document.getElementById('cfBio').classList.remove('hidden'); }
   else { document.querySelector('input[name="cfBioType"][value="hide"]').checked = true; document.getElementById('cfBio').classList.add('hidden'); }
+  
   document.getElementById('cfAdditional').value = char ? char.additional : '';
   if(char && char.additional) { document.querySelector('input[name="cfAddType"][value="prop"]').checked = true; document.getElementById('cfAdditional').classList.remove('hidden'); }
   else { document.querySelector('input[name="cfAddType"][value="hide"]').checked = true; document.getElementById('cfAdditional').classList.add('hidden'); }
+  
   showScreen('screen-charform');
 }
 async function saveCharacter(){
@@ -721,7 +748,6 @@ async function openChat(id){
   if(!r) return;
   document.getElementById('chatTitle').textContent=r.name;
   updateRelationshipBar(r.relationship !== undefined ? r.relationship : 50);
-  currentQuests = r.quests || [];
   showScreen('screen-chat'); await loadMessages(id); await loadNotes(id);
   document.getElementById('chatInput').focus();
 }
@@ -765,7 +791,6 @@ async function loadMessages(id){
   c.scrollTop=c.scrollHeight;
 }
 
-// Кубик
 function toggleDice() {
   isDiceActive = !isDiceActive;
   document.getElementById('btnDice').classList.toggle('active', isDiceActive);
@@ -792,7 +817,7 @@ async function renderQuestsList() {
     div.innerHTML = `<span>${escapeHtml(q)}</span>
       <div class="quest-actions">
         <button onclick="reworkQuest(${index})">↻</button>
-        <button onclick="deleteQuest(${index})">🗑</button>
+        <button onclick="deleteQuest(${index})" style="color:#cf6679;">❌</button>
       </div>`;
     container.appendChild(div);
   });
@@ -812,7 +837,7 @@ async function reworkQuest(index) {
   if(r && r.quests) {
     r.quests.splice(index, 1);
     await dbPut('roles', r);
-    generateQuest('random', true); // true means re-render after
+    generateQuest('random', true);
   }
 }
 
@@ -833,7 +858,6 @@ async function generateQuest(type, isRework = false) {
   const sys = `Ты — генератор сюжетных идей. Твоя задача придумать одно короткое предложение. Не пиши приветствий, не объясняй. Только суть.`;
   
   try {
-    // Скрываем кнопки на время генерации
     document.getElementById('questListContainer').innerHTML = '<p style="text-align:center;font-size:13px;color:var(--muted);margin-top:10px;">Генерация...</p>';
     
     let reply = '';
@@ -852,7 +876,6 @@ async function generateQuest(type, isRework = false) {
     await dbPut('roles', r);
     
     renderQuestsList();
-    // Обновляем массив в оперативной памяти, чтобы бот увидел квест при следующем сообщении
     const updatedRole = allRoles.find(x => x.id === currentRoleId);
     if(updatedRole) updatedRole.quests = r.quests;
 
@@ -947,21 +970,21 @@ async function generateBotReply(userDice = null){
 }
 
 async function checkRelationshipUpdate(botReply, role) {
-  // Мы просим нейросеть (или ищем маркер) обновить отношения. В рамках этого кода мы делаем это скрыто.
-  // Для простоты сделаем так: каждый пост бота немного меняет отношения в зависимости от тона.
-  // В реальном приложении тут был бы второй запрос к ИИ, но чтобы не тратить токены, мы используем локальную эвристику.
+  // Локальная эвристика для изменения отношений
   let change = 0;
   const lowerReply = botReply.toLowerCase();
-  if(lowerReply.match(/улыб|нежн|смех|благодар|тепл|обня/)) change = 2;
-  if(lowerReply.match(/груб|зл|крич|удар|отверг|презр/)) change = -2;
+  if(lowerReply.match(/улыб|нежн|смех|благодар|тепл|обня|смутил|рад/)) change = 3;
+  if(lowerReply.match(/груб|зл|крич|удар|отверг|презр|хмур|напряг/)) change = -3;
   
   if(change !== 0) {
      let newVal = (role.relationship || 50) + change;
      if(newVal > 100) newVal = 100;
      if(newVal < 0) newVal = 0;
-     role.relationship = newVal;
-     await dbPut('roles', role);
-     updateRelationshipBar(newVal);
+     if(newVal !== role.relationship) {
+       role.relationship = newVal;
+       await dbPut('roles', role);
+       updateRelationshipBar(newVal);
+     }
   }
 }
 
@@ -1028,4 +1051,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-      </html>
+                                                            </html>
