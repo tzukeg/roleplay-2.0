@@ -26,7 +26,7 @@ input,textarea,select,button{font-family:inherit}
 .role-item{background:var(--surface);border-radius:var(--radius);padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;position:relative;}
 .role-item:hover{background:var(--surface2)}
 .role-title-area{display:flex;align-items:center;gap:8px;flex:1;}
-.fav-star{color:#ffd700; font-size:18px; cursor:pointer; padding:4px;}
+.fav-star{color:var(--btn-bg); font-size:20px; cursor:pointer; padding:4px;}
 .btn{background:var(--btn-bg);color:var(--btn-text);border:none;border-radius:var(--radius);padding:12px 20px;font-size:16px;font-weight:600;cursor:pointer;text-align:center;}
 .btn:active{opacity:0.8}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
@@ -453,7 +453,7 @@ async function renderCatalog(){
     const fol=allFolders.find(f=>f.name===r.folder);
     const color=fol?fol.color:colors.btn;
     const i=document.createElement('div');i.className='role-item';
-    const star = r.isFavorite ? '⭐' : '☆';
+    const star = r.isFavorite ? '★' : '☆';
     
     i.innerHTML = `
       <div class="role-title-area">
@@ -776,26 +776,33 @@ async function generateQuest(type, isRework = false) {
   const key = (r.model==='deepseek') ? settings.deepseek : settings.gemini;
   if(!key) { showAlert('Введите ключ в Настройках'); return; }
 
-  let prompt = '';
-  if(type === 'random') prompt = 'Придумай интересный, неожиданный сюжетный поворот для текущей ролевой. Напиши только суть события в одном предложении.';
-  else if(type === 'rel_strong_bad') prompt = 'Придумай событие, которое вызовет сильное ухудшение отношений между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
-  else if(type === 'rel_bad') prompt = 'Придумай событие, которое слегка ухудшит отношения между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
-  else if(type === 'rel_strong_conflict') prompt = 'Придумай событие, которое вызовет сильный конфликт между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
-  else if(type === 'rel_conflict') prompt = 'Придумай событие, которое вызовет небольшой конфликт между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
-  else if(type === 'rel_good') prompt = 'Придумай событие, которое улучшит отношения между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
+  // Получаем последние 4 сообщения для контекста
+  const msgs = await dbByIndex('messages','roleId',currentRoleId);
+  const sorted = msgs.sort((a,b)=>a.timestamp-b.timestamp);
+  const last4 = sorted.slice(-4);
+  let context = "Последние события в ролевой:\n";
+  last4.forEach(m => { context += `${m.sender === 'user' ? 'Игрок' : 'Бот'}: ${m.text}\n`; });
 
-  const sys = `Ты — генератор сюжетных идей. Твоя задача придумать одно короткое предложение. Не пиши приветствий, не объясняй. Только суть.`;
+  let prompt = '';
+  if(type === 'random') prompt = 'Придумай интересный, неожиданный сюжетный поворот, который логично вытекает из последних событий. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_strong_bad') prompt = 'Придумай событие, которое вызовет сильное ухудшение отношений между главным NPC и персонажем игрока, опираясь на последние события. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_bad') prompt = 'Придумай событие, которое слегка ухудшит отношения между главным NPC и персонажем игрока, опираясь на последние события. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_strong_conflict') prompt = 'Придумай событие, которое вызовет сильный конфликт между главным NPC и персонажем игрока, опираясь на последние события. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_conflict') prompt = 'Придумай событие, которое вызовет небольшой конфликт между главным NPC и персонажем игрока, опираясь на последние события. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_good') prompt = 'Придумай событие, которое улучшит отношения между главным NPC и персонажем игрока, опираясь на последние события. Напиши только суть события в одном предложении.';
+
+  const sys = `Ты — генератор сюжетных идей. Твоя задача придумать одно короткое предложение, которое идеально впишется в текущий момент истории. Не пиши приветствий, не объясняй. Только суть.`;
   
   try {
     document.getElementById('questListContainer').innerHTML = '<p style="text-align:center;font-size:13px;color:var(--muted);margin-top:10px;">Генерация...</p>';
     
     let reply = '';
     if(r.model === 'deepseek') {
-       const res = await fetch('https://api.deepseek.com/chat/completions', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key}, body:JSON.stringify({model:'deepseek-flash', messages:[{role:'system', content:sys},{role:'user', content:prompt}], temperature:0.9})});
+       const res = await fetch('https://api.deepseek.com/chat/completions', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key}, body:JSON.stringify({model:'deepseek-flash', messages:[{role:'system', content:sys},{role:'user', content:context + "\n\nЗадание: " + prompt}], temperature:0.9})});
        if(!res.ok) throw new Error(res.status);
        const j = await res.json(); reply = j.choices[0].message.content.trim();
     } else {
-       const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({system_instruction:{parts:[{text:sys}]}, contents:[{role:'user', parts:[{text:prompt}]}]})});
+       const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({system_instruction:{parts:[{text:sys}]}, contents:[{role:'user', parts:[{text:context + "\n\nЗадание: " + prompt}]}]})});
        if(!res.ok) throw new Error(res.status);
        const j = await res.json(); reply = j.candidates[0].content.parts[0].text.trim();
     }
@@ -955,4 +962,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-  </html>
+      </html>
