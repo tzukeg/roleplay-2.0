@@ -23,12 +23,15 @@ input,textarea,select,button{font-family:inherit}
 .folder-name{font-weight:600;margin-bottom:4px}
 .folder-count{font-size:12px;color:var(--muted)}
 .role-list{display:flex;flex-direction:column;gap:8px}
-.role-item{background:var(--surface);border-radius:var(--radius);padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.role-item{background:var(--surface);border-radius:var(--radius);padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;position:relative;}
 .role-item:hover{background:var(--surface2)}
+.role-title-area{display:flex;align-items:center;gap:8px;flex:1;}
+.fav-star{color:#ffd700; font-size:18px; cursor:pointer; padding:4px;}
 .btn{background:var(--btn-bg);color:var(--btn-text);border:none;border-radius:var(--radius);padding:12px 20px;font-size:16px;font-weight:600;cursor:pointer;text-align:center;}
 .btn:active{opacity:0.8}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .btn-small{padding:8px 14px;font-size:14px}
+.btn-danger{background:#cf6679; color:#000;}
 .header-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .header-bar h1{flex:1;font-size:24px; letter-spacing: 1px;}
 .header-bar h2{flex:1;font-size:20px}
@@ -43,9 +46,14 @@ input,textarea,select,button{font-family:inherit}
 .msg-actions{display:flex;gap:8px;margin-top:4px;font-size:12px;opacity:0.6;}
 .msg-actions button{background:none;border:none;color:var(--text);cursor:pointer;padding:4px;font-size:14px}
 .msg-actions button:active{opacity:1}
+.dice-roll{font-size:13px; font-weight:bold; color:var(--accent); margin-top:4px;}
+
 .chat-input-row{display:flex;gap:8px;align-items:flex-end}
 .chat-input{flex:1;padding:14px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--input-text);font-size:16px;resize:none;outline:none;min-height:52px;max-height:120px}
-.notes-panel{background:var(--surface2);border-radius:var(--radius);padding:16px;margin-top:12px;font-size:14px}
+.btn-dice{background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer;}
+.btn-dice.active{background:var(--accent); color:#000; border-color:var(--accent);}
+
+.notes-panel{background:var(--surface2);border-radius:var(--radius);padding:16px;margin-top:12px;font-size:14px; display:flex; flex-direction:column;}
 .notes-panel textarea{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--input-text);padding:12px;font-size:14px;min-height:120px;resize:vertical;margin-top:8px;outline:none}
 .hidden{display:none!important}
 .form-group{margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
@@ -62,26 +70,52 @@ input,textarea,select,button{font-family:inherit}
 .switch-row label{font-size:14px}
 .switch-row input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent)}
 
-/* Модальные окна */
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(2px)}
-.modal-content{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height: 90vh; overflow-y: auto;}
-.modal-content h3{text-align:center;margin-bottom:8px;font-size:18px}
-.modal-content button{padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;cursor:pointer;text-align:left;transition:0.2s}
-.modal-content button:active{background:var(--btn-bg);color:var(--btn-text)}
-.modal-content textarea{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--input-text);padding:12px;font-size:15px;min-height:120px;resize:vertical;outline:none;}
-
-/* Кастомные радио-кнопки для характера */
 .radio-group{display:flex; flex-direction:column; gap:8px; margin-bottom:8px;}
-.radio-label{display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--border); border-radius:12px; cursor:pointer; background:var(--surface2);}
+.radio-label{display:flex; align-items:center; gap:10px; padding:12px; border:1px solid var(--border); border-radius:12px; cursor:pointer; background:var(--surface2);}
 .radio-label input[type="radio"]{width:20px; height:20px; accent-color:var(--btn-bg);}
 .radio-label span{font-size:15px;}
 
-/* Сетка для карточек персонажей */
-.char-grid{display:grid; grid-template-columns:1fr; gap:12px;}
-.char-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; cursor:pointer;}
-.char-card:active{background:var(--surface2);}
-.char-card h4{font-size:18px; margin-bottom:6px; color:var(--accent);}
-.char-card p{font-size:14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.gallery-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+.gallery-header h2{font-size:22px; font-weight:700;}
+.char-list{display:flex; flex-direction:column; gap:8px;}
+.char-item{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; display:flex; justify-content:space-between; align-items:center;}
+.char-item h4{font-size:16px; font-weight:600;}
+.char-item button{background:none; border:none; color:var(--text); font-size:18px; cursor:pointer; padding:4px;}
+
+/* Шкала отношений */
+.relationship-bar-container{padding: 0 16px 10px 16px;}
+.rel-labels{display:flex; justify-content:space-between; font-size:14px; margin-bottom:4px; padding:0 2px;}
+.rel-track{height:12px; border-radius:6px; background:linear-gradient(to right, #cf6679, #ffd54f, #81c784, #4fc3f7, #f06292); position:relative; overflow:hidden;}
+.rel-marker{position:absolute; top:0; bottom:0; width:4px; background:white; border-radius:2px; box-shadow:0 0 4px rgba(0,0,0,0.5); transition:left 0.3s ease;}
+.rel-text{text-align:center; font-size:12px; color:var(--muted); margin-top:6px; font-weight:600;}
+
+/* Модальные окна */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(2px)}
+.modal-content{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height: 85vh; overflow-y: auto;}
+.modal-content h3{text-align:center;margin-bottom:8px;font-size:18px}
+.modal-content button{padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;cursor:pointer;text-align:left;transition:0.2s}
+.modal-content button:active{background:var(--btn-bg);color:var(--btn-text)}
+.modal-content textarea{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--input-text);padding:12px;font-size:15px;min-height:100px;resize:vertical;outline:none;}
+
+.select-list{display:flex; flex-direction:column; gap:8px;}
+.select-list button{padding:16px; text-align:center; border-radius:12px; background:var(--input-bg); border:1px solid var(--border); font-size:16px; cursor:pointer;}
+.select-list button:active{background:var(--btn-bg); color:var(--btn-text);}
+
+.action-menu-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:transparent;display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.action-menu-content{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:300px;display:flex;flex-direction:column;gap:16px;border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,0.9);}
+.action-menu-content h3{text-align:center;font-size:18px; word-break:break-word;}
+.action-buttons{display:flex; justify-content:center; gap:24px; margin-top:8px;}
+.icon-btn{background:none; border:none; font-size:28px; cursor:pointer; padding:8px;}
+.icon-btn.del{color:#cf6679;}
+
+/* Список квестов */
+.quest-list{display:flex; flex-direction:column; gap:8px; margin-top:10px;}
+.quest-item{background:var(--input-bg); border:1px solid var(--border); border-radius:12px; padding:12px; font-size:14px; display:flex; justify-content:space-between; align-items:center; gap:10px;}
+.quest-item span{flex:1;}
+.quest-actions{display:flex; gap:8px;}
+.quest-actions button{background:none; border:none; color:var(--text); cursor:pointer; font-size:16px;}
+
+/* Карта и топология (пока нет, но оставил классы) */
 </style>
 </head>
 <body>
@@ -91,7 +125,7 @@ input,textarea,select,button{font-family:inherit}
   <div class="header-bar">
     <h1>𝙆𝙚𝙟𝙟</h1>
     <button class="btn btn-small" onclick="openRoleForm()">+ Ролевая</button>
-    <button class="btn btn-secondary btn-small" onclick="openCharMenu()">+ Мой персонаж</button>
+    <button class="btn btn-secondary btn-small" onclick="openCharGallery()">Мои персонажи</button>
     <button class="btn btn-secondary btn-small" onclick="openFolderForm()">+ Папка</button>
     <button class="btn btn-secondary btn-small" onclick="openSettings()">⚙</button>
   </div>
@@ -104,17 +138,19 @@ input,textarea,select,button{font-family:inherit}
 <div id="screen-chargallery" class="screen">
   <div class="header-bar">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
-    <h2>Галерея персонажей</h2>
-    <button class="btn btn-small" onclick="openCharForm()">+ Создать</button>
   </div>
-  <div id="charsContainer" class="char-grid"></div>
+  <div class="gallery-header">
+    <h2>Галерея</h2>
+    <button class="btn btn-small" onclick="openCharForm()">+ Создать персонажа</button>
+  </div>
+  <div id="charsContainer" class="char-list"></div>
 </div>
 
 <!-- ЭКРАН: ФОРМА ПЕРСОНАЖА -->
 <div id="screen-charform" class="screen">
   <div class="header-bar">
     <button class="btn btn-secondary btn-small" onclick="backToCharGallery()">← Назад</button>
-    <h2>Мой персонаж</h2>
+    <h2 id="charFormTitle">Новый персонаж</h2>
   </div>
   <div class="form-group"><label>Имя персонажа (обязательно)</label><input id="cfName" placeholder="Например: Аркадий"></div>
   <div class="form-group"><label>Внешность</label><textarea id="cfAppearance" rows="2" placeholder="Описание внешности..."></textarea></div>
@@ -122,8 +158,8 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group">
     <label>Характер</label>
     <div class="radio-group">
-      <label class="radio-label"><input type="radio" name="cfCharType" value="prop" onchange="toggleCharField('cfCharacter')"><span>Прописать</span></label>
       <label class="radio-label"><input type="radio" name="cfCharType" value="hide" checked onchange="toggleCharField('cfCharacter')"><span>Раскроется по ходу ролевой</span></label>
+      <label class="radio-label"><input type="radio" name="cfCharType" value="prop" onchange="toggleCharField('cfCharacter')"><span>Прописать</span></label>
     </div>
     <textarea id="cfCharacter" class="hidden" rows="2" placeholder="Опишите характер..."></textarea>
   </div>
@@ -131,8 +167,8 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group">
     <label>Биография</label>
     <div class="radio-group">
-      <label class="radio-label"><input type="radio" name="cfBioType" value="prop" onchange="toggleCharField('cfBio')"><span>Прописать</span></label>
       <label class="radio-label"><input type="radio" name="cfBioType" value="hide" checked onchange="toggleCharField('cfBio')"><span>Раскроется по ходу ролевой</span></label>
+      <label class="radio-label"><input type="radio" name="cfBioType" value="prop" onchange="toggleCharField('cfBio')"><span>Прописать</span></label>
     </div>
     <textarea id="cfBio" class="hidden" rows="2" placeholder="Опишите биографию..."></textarea>
   </div>
@@ -140,27 +176,35 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group">
     <label>Дополнительно</label>
     <div class="radio-group">
-      <label class="radio-label"><input type="radio" name="cfAddType" value="prop" onchange="toggleCharField('cfAdditional')"><span>Прописать</span></label>
       <label class="radio-label"><input type="radio" name="cfAddType" value="hide" checked onchange="toggleCharField('cfAdditional')"><span>Раскроется по ходу ролевой</span></label>
+      <label class="radio-label"><input type="radio" name="cfAddType" value="prop" onchange="toggleCharField('cfAdditional')"><span>Прописать</span></label>
     </div>
     <textarea id="cfAdditional" class="hidden" rows="2" placeholder="Дополнительная информация..."></textarea>
   </div>
 
   <div class="settings-row">
     <button class="btn" onclick="saveCharacter()">Сохранить</button>
-    <button class="btn btn-secondary" onclick="deleteCurrentChar()" id="cfDeleteBtn" style="display:none;">Удалить</button>
   </div>
 </div>
 
 <!-- ЭКРАН: ФОРМА РОЛЕВОЙ -->
 <div id="screen-roleform" class="screen">
   <div class="header-bar">
-    <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
+    <button class="btn btn-secondary btn-small" onclick="backFromRoleForm()">← Назад</button>
     <h2 id="roleFormTitle">Новая ролевая</h2>
   </div>
   <div class="form-group"><label>Название</label><input id="rfName" placeholder="Например: Тёмный лес"></div>
-  <div class="form-group"><label>Папка</label><select id="rfFolder"></select></div>
-  <div class="form-group"><label>Мой персонаж в этой ролевой</label><select id="rfMyChar"></select></div>
+  
+  <div class="form-group">
+    <label>Папка</label>
+    <button class="btn btn-secondary" id="btnSelectFolder" onclick="openFolderSelect()" style="text-align:left;">Без папки</button>
+  </div>
+
+  <div class="form-group">
+    <label>Мой персонаж в этой ролевой</label>
+    <button class="btn btn-secondary" id="btnSelectChar" onclick="openCharSelect()" style="text-align:left;">Не выбран</button>
+  </div>
+
   <div class="form-group"><label>Модель по умолчанию</label>
     <div class="model-switch">
       <button type="button" id="btnGemini" onclick="pickModel('gemini')">Gemini</button>
@@ -175,25 +219,39 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group"><label>Второстепенные персонажи (для фона)</label><textarea id="rfSecondary" rows="2" placeholder="Опиши их кратко..."></textarea></div>
   <div class="settings-row">
     <button class="btn" onclick="saveRole()">Сохранить</button>
-    <button class="btn btn-secondary" onclick="deleteCurrentRole()" id="rfDeleteBtn" style="display:none;">Удалить</button>
   </div>
 </div>
 
 <!-- ЭКРАН: ЧАТ -->
-<div id="screen-chat" class="screen">
-  <div class="header-bar">
+<div id="screen-chat" class="screen" style="padding:0;">
+  <div class="header-bar" style="padding:16px 16px 0 16px; margin-bottom:0;">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
     <h2 id="chatTitle">Ролевая</h2>
     <button class="btn btn-secondary btn-small" onclick="toggleNotes()">📝</button>
     <button class="btn btn-secondary btn-small" onclick="editCurrentRole()">✎</button>
   </div>
-  <div id="chatMessages" class="chat-messages"></div>
-  <div id="notesPanel" class="notes-panel hidden">
+
+  <!-- Шкала отношений -->
+  <div class="relationship-bar-container" id="relBarContainer">
+    <div class="rel-labels">
+      <span>🤬</span><span>😐</span><span>😄</span><span>😊</span><span>😍</span>
+    </div>
+    <div class="rel-track">
+      <div class="rel-marker" id="relMarker" style="left: 50%;"></div>
+    </div>
+    <div class="rel-text" id="relText">Нейтрально</div>
+  </div>
+
+  <div id="chatMessages" class="chat-messages" style="padding:0 16px;"></div>
+  
+  <div id="notesPanel" class="notes-panel hidden" style="margin:0 16px 12px 16px;">
     <strong>Блокнот (ключевая информация)</strong>
     <textarea id="notesContent" placeholder="Что бот должен помнить..."></textarea>
     <button class="btn btn-small" style="margin-top:8px;" onclick="saveNotes()">Сохранить заметки</button>
   </div>
-  <div class="chat-input-row">
+
+  <div class="chat-input-row" style="padding:0 16px 16px 16px; position:relative;">
+    <button class="btn-dice" id="btnDice" onclick="toggleDice()">🎲</button>
     <textarea class="chat-input" id="chatInput" placeholder="Ваше сообщение..." rows="1"></textarea>
     <button class="btn" onclick="sendMessage()">➤</button>
   </div>
@@ -250,13 +308,45 @@ input,textarea,select,button{font-family:inherit}
   <button class="btn" onclick="saveFolder()">Сохранить</button>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО: МЕНЮ ПЕРСОНАЖЕЙ -->
-<div id="modalCharMenu" class="modal-overlay hidden">
+<!-- МОДАЛЬНОЕ ОКНО: ФЛАЖОК (КВЕСТЫ) -->
+<div id="modalQuests" class="modal-overlay hidden">
   <div class="modal-content">
-    <h3>Мои персонажи</h3>
-    <button onclick="openCharForm()">Создать</button>
-    <button onclick="openCharGallery()">Галерея</button>
-    <button class="btn-secondary" onclick="document.getElementById('modalCharMenu').classList.add('hidden')" style="text-align:center;margin-top:8px;background:transparent;border:none;">Отмена</button>
+    <h3>🚩 Сюжетные повороты</h3>
+    
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-small" style="flex:1;" onclick="generateQuest('random')">Случайный поворот</button>
+      <button class="btn btn-small btn-secondary" style="flex:1;" onclick="document.getElementById('questRelSelect').classList.toggle('hidden')">Для отношений</button>
+    </div>
+    
+    <div id="questRelSelect" class="hidden" style="display:flex; flex-direction:column; gap:6px; margin-top:8px; background:var(--input-bg); padding:10px; border-radius:12px;">
+      <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_strong_bad')">Сильное ухудшение</button>
+      <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_bad')">Ухудшение отношений</button>
+      <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_strong_conflict')">Сильный конфликт</button>
+      <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_conflict')">Конфликт</button>
+      <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_good')">Улучшение отношений</button>
+    </div>
+
+    <div id="questListContainer" class="quest-list"></div>
+
+    <button class="btn-secondary" onclick="closeQuests()" style="text-align:center;margin-top:8px;background:transparent;border:none;">Закрыть</button>
+  </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ВЫБОРА ПАПКИ -->
+<div id="modalFolderSelect" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3>Выберите папку</h3>
+    <div class="select-list" id="folderSelectList"></div>
+    <button class="btn-secondary" onclick="document.getElementById('modalFolderSelect').classList.add('hidden')" style="text-align:center;margin-top:8px;background:transparent;border:none;">Отмена</button>
+  </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ВЫБОРА ПЕРСОНАЖА -->
+<div id="modalCharSelect" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3>Выберите персонажа</h3>
+    <div class="select-list" id="charSelectList"></div>
+    <button class="btn-secondary" onclick="document.getElementById('modalCharSelect').classList.add('hidden')" style="text-align:center;margin-top:8px;background:transparent;border:none;">Отмена</button>
   </div>
 </div>
 
@@ -293,10 +383,34 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
+<!-- МИНИ-ОКОШКО ПРИ ДОЛГОМ НАЖАТИИ НА РОЛЕВУЮ -->
+<div id="modalLongPress" class="action-menu-overlay hidden">
+  <div class="action-menu-content">
+    <h3 id="lpRoleName">Название</h3>
+    
+    <div id="lpActions">
+      <div class="action-buttons">
+        <button class="icon-btn" onclick="editFromLongPress()">✎</button>
+        <button class="icon-btn del" onclick="showDeleteConfirm()">🗑</button>
+      </div>
+    </div>
+
+    <div id="lpDeleteConfirm" class="hidden">
+      <p style="text-align:center; font-size:16px; margin-bottom:12px; color:var(--text);">Удалить ролевую?</p>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-danger" style="flex:1;" onclick="confirmDeleteRole()">Да</button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeLongPress()">Нет</button>
+      </div>
+    </div>
+
+    <button class="btn-secondary" onclick="closeLongPress()" style="text-align:center;background:transparent;border:none;margin-top:8px;">Отмена</button>
+  </div>
+</div>
+
 <script>
 // ===== БАЗА ДАННЫХ =====
 let db;
-const DB_NAME='RoleplayDB', DB_VERSION=2;
+const DB_NAME='RoleplayDB', DB_VERSION=3;
 function initDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onerror=()=>rej(r.error);r.onsuccess=()=>{db=r.result;res()};r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('roles'))d.createObjectStore('roles',{keyPath:'id',autoIncrement:true});if(!d.objectStoreNames.contains('messages')){const s=d.createObjectStore('messages',{keyPath:'id',autoIncrement:true});s.createIndex('roleId','roleId',{unique:false})}if(!d.objectStoreNames.contains('notes'))d.createObjectStore('notes',{keyPath:'roleId'});if(!d.objectStoreNames.contains('folders'))d.createObjectStore('folders',{keyPath:'id',autoIncrement:true});if(!d.objectStoreNames.contains('characters'))d.createObjectStore('characters',{keyPath:'id',autoIncrement:true})}})}
 function dbAll(s){return new Promise((res,rej)=>{const t=db.transaction(s,'readonly');const r=t.objectStore(s).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 function dbAdd(s,d){return new Promise((res,rej)=>{const t=db.transaction(s,'readwrite');const r=t.objectStore(s).add(d);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
@@ -307,12 +421,19 @@ function dbByIndex(s,i,v){return new Promise((res,rej)=>{const t=db.transaction(
 
 // ===== ПЕРЕМЕННЫЕ =====
 let currentRoleId=null, allRoles=[], allFolders=[], allChars=[], editingRoleId=null, editingModel='gemini';
-let currentCharId=null, editingCharId=null;
+let editingCharId=null;
+let currentFolderVal='';
+let currentCharVal='';
+let currentRelValue=50;
+let currentQuests=[];
+let isDiceActive=false;
 let settings={gemini:'',deepseek:'',autoSwitch:false};
 let colors={bg:'#121212',userMsg:'#bb86fc',userText:'#000000',botMsg:'#1e1e1e',botText:'#e0e0e0',btn:'#bb86fc',btnText:'#000000',inputBg:'#1e1e1e',inputText:'#e0e0e0',text:'#e0e0e0'};
 const defaultColors={...colors};
 let reworkMessageId=null;
 let editingMessageId=null;
+let lpRoleId=null;
+let isEditingRoleFromChat = false; 
 
 // ===== ОКОШКИ =====
 function showAlert(msg) { document.getElementById('alertText').textContent = msg; document.getElementById('modalAlert').classList.remove('hidden'); }
@@ -321,8 +442,15 @@ function closeAlert() { document.getElementById('modalAlert').classList.add('hid
 // ===== НАВИГАЦИЯ =====
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
 function backToCatalog(){showScreen('screen-catalog');renderCatalog()}
-function openCharMenu(){ document.getElementById('modalCharMenu').classList.remove('hidden'); }
-function openCharGallery(){ document.getElementById('modalCharMenu').classList.add('hidden'); renderCharGallery(); showScreen('screen-chargallery'); }
+function backFromRoleForm() {
+  if(isEditingRoleFromChat && editingRoleId) {
+    openChat(editingRoleId);
+    isEditingRoleFromChat = false;
+  } else {
+    backToCatalog();
+  }
+}
+function openCharGallery(){ showScreen('screen-chargallery'); renderCharGallery(); }
 function backToCharGallery(){ showScreen('screen-chargallery'); renderCharGallery(); }
 
 // ===== ПРИМЕНЕНИЕ ЦВЕТОВ =====
@@ -340,6 +468,14 @@ function applyColors(){
 async function renderCatalog(){
   const term=(document.getElementById('searchInput').value||'').toLowerCase();
   allRoles=await dbAll('roles');allFolders=await dbAll('folders');
+  
+  // Сортировка: сначала избранные
+  allRoles.sort((a,b) => {
+    if(a.isFavorite && !b.isFavorite) return -1;
+    if(!a.isFavorite && b.isFavorite) return 1;
+    return b.id - a.id;
+  });
+
   const filtered=allRoles.filter(r=>r.name.toLowerCase().includes(term));
   const fc=document.getElementById('foldersContainer');fc.innerHTML='';
   const groups={};
@@ -351,115 +487,135 @@ async function renderCatalog(){
     c.innerHTML=`<div class="folder-name">${escapeHtml(fname)}</div><div class="folder-count">${groups[fname].length} шт.</div>`;
     fc.appendChild(c);
   });
+  
   const rc=document.getElementById('rolesContainer');rc.innerHTML='';
   filtered.forEach(r=>{
     const fol=allFolders.find(f=>f.name===r.folder);
     const color=fol?fol.color:colors.btn;
     const i=document.createElement('div');i.className='role-item';
-    i.innerHTML=`<span>${escapeHtml(r.name)}</span><span style="color:${color};font-size:12px;">${escapeHtml(r.folder||'')} · ${r.model==='deepseek'?'DeepSeek':'Gemini'}</span>`;
-    i.onclick=()=>openChat(r.id);rc.appendChild(i);
+    
+    // Звездочка для избранного
+    const star = r.isFavorite ? '⭐' : '☆';
+    
+    i.innerHTML = `
+      <div class="role-title-area">
+        <span class="fav-star" onclick="toggleFavorite(event, ${r.id})">${star}</span>
+        <span>${escapeHtml(r.name)}</span>
+      </div>
+      <span style="color:${color};font-size:12px;">${escapeHtml(r.folder||'')} · ${r.model==='deepseek'?'DeepSeek':'Gemini'}</span>
+    `;
+    
+    i.onclick = (e) => { if(!e.target.classList.contains('fav-star')) openChat(r.id); };
+    
+    let pressTimer;
+    i.addEventListener('touchstart', (e) => {
+      if(e.target.classList.contains('fav-star')) return;
+      pressTimer = setTimeout(() => { e.preventDefault(); openLongPress(r.id, r.name); }, 600);
+    });
+    i.addEventListener('touchend', () => clearTimeout(pressTimer));
+    i.addEventListener('touchmove', () => clearTimeout(pressTimer));
+    i.addEventListener('mousedown', (e) => { if(!e.target.classList.contains('fav-star')) pressTimer = setTimeout(() => openLongPress(r.id, r.name), 600); });
+    i.addEventListener('mouseup', () => clearTimeout(pressTimer));
+    i.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+
+    rc.appendChild(i);
   });
 }
 function escapeHtml(t){return String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
+async function toggleFavorite(e, id) {
+  e.stopPropagation();
+  const role = await dbGet('roles', id);
+  if(role) {
+    role.isFavorite = !role.isFavorite;
+    await dbPut('roles', role);
+    renderCatalog();
+  }
+}
+
+// ===== ДОЛГОЕ НАЖАТИЕ =====
+function openLongPress(id, name) {
+  lpRoleId = id;
+  document.getElementById('lpRoleName').textContent = name;
+  document.getElementById('lpActions').classList.remove('hidden');
+  document.getElementById('lpDeleteConfirm').classList.add('hidden');
+  document.getElementById('modalLongPress').classList.remove('hidden');
+}
+function closeLongPress() { document.getElementById('modalLongPress').classList.add('hidden'); lpRoleId = null; }
+function editFromLongPress() {
+  const role = allRoles.find(r => r.id === lpRoleId);
+  closeLongPress();
+  if(role) openRoleForm(role, false);
+}
+function showDeleteConfirm() {
+  document.getElementById('lpActions').classList.add('hidden');
+  document.getElementById('lpDeleteConfirm').classList.remove('hidden');
+}
+async function confirmDeleteRole() {
+  if(!lpRoleId) return;
+  await dbDel('roles', lpRoleId);
+  const msgs = await dbByIndex('messages', 'roleId', lpRoleId);
+  for(let m of msgs) { await dbDel('messages', m.id); }
+  await dbDel('notes', lpRoleId);
+  closeLongPress(); renderCatalog();
+}
+
 // ===== ПЕРСОНАЖИ =====
 async function renderCharGallery(){
   allChars = await dbAll('characters');
-  const c = document.getElementById('charsContainer');
-  c.innerHTML = '';
-  if(allChars.length === 0) { c.innerHTML = '<p style="color:var(--muted);text-align:center;">Пока нет персонажей...</p>'; return; }
+  const c = document.getElementById('charsContainer'); c.innerHTML = '';
+  if(allChars.length === 0) { c.innerHTML = '<p style="color:var(--muted);text-align:center;margin-top:20px;">Пока нет персонажей...</p>'; return; }
   allChars.forEach(char => {
-    const card = document.createElement('div');
-    card.className = 'char-card';
-    card.innerHTML = `<h4>${escapeHtml(char.name)}</h4><p>${escapeHtml(char.appearance || 'Без внешности')}</p>`;
-    card.onclick = () => openCharForm(char);
-    c.appendChild(card);
+    const item = document.createElement('div'); item.className = 'char-item';
+    item.innerHTML = `<h4>${escapeHtml(char.name)}</h4><button onclick="editChar(${char.id})">✎</button>`;
+    c.appendChild(item);
   });
 }
-
+function editChar(id){ const char = allChars.find(c => c.id === id); if(char) openCharForm(char); }
 function toggleCharField(id){
-  const el = document.getElementById(id);
-  const radios = document.getElementsByName(id.replace('cf','cf')+'Type'); 
-  // Простая логика: если выбран "Прописать" - показываем, иначе скрываем
   const selected = document.querySelector(`input[name="${id.replace('cf','cf')}Type"]:checked`);
-  if(selected && selected.value === 'prop') el.classList.remove('hidden');
-  else el.classList.add('hidden');
+  if(selected && selected.value === 'prop') document.getElementById(id).classList.remove('hidden');
+  else document.getElementById(id).classList.add('hidden');
 }
-
 async function openCharForm(char){
   editingCharId = char ? char.id : null;
+  document.getElementById('charFormTitle').textContent = char ? 'Редактировать' : 'Новый персонаж';
   document.getElementById('cfName').value = char ? char.name : '';
   document.getElementById('cfAppearance').value = char ? char.appearance : '';
-  
-  // Сброс радио-кнопок
   document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
-  
-  // Характер
   document.getElementById('cfCharacter').value = char ? char.character : '';
-  document.getElementById('cfCharacter').classList.add('hidden');
-  if(char && char.character) {
-    document.querySelector('input[name="cfCharType"][value="prop"]').checked = true;
-    document.getElementById('cfCharacter').classList.remove('hidden');
-  } else {
-    document.querySelector('input[name="cfCharType"][value="hide"]').checked = true;
-  }
-
-  // Биография
+  if(char && char.character) { document.querySelector('input[name="cfCharType"][value="prop"]').checked = true; document.getElementById('cfCharacter').classList.remove('hidden'); }
+  else { document.querySelector('input[name="cfCharType"][value="hide"]').checked = true; document.getElementById('cfCharacter').classList.add('hidden'); }
   document.getElementById('cfBio').value = char ? char.bio : '';
-  document.getElementById('cfBio').classList.add('hidden');
-  if(char && char.bio) {
-    document.querySelector('input[name="cfBioType"][value="prop"]').checked = true;
-    document.getElementById('cfBio').classList.remove('hidden');
-  } else {
-    document.querySelector('input[name="cfBioType"][value="hide"]').checked = true;
-  }
-
-  // Дополнительно
+  if(char && char.bio) { document.querySelector('input[name="cfBioType"][value="prop"]').checked = true; document.getElementById('cfBio').classList.remove('hidden'); }
+  else { document.querySelector('input[name="cfBioType"][value="hide"]').checked = true; document.getElementById('cfBio').classList.add('hidden'); }
   document.getElementById('cfAdditional').value = char ? char.additional : '';
-  document.getElementById('cfAdditional').classList.add('hidden');
-  if(char && char.additional) {
-    document.querySelector('input[name="cfAddType"][value="prop"]').checked = true;
-    document.getElementById('cfAdditional').classList.remove('hidden');
-  } else {
-    document.querySelector('input[name="cfAddType"][value="hide"]').checked = true;
-  }
-
-  document.getElementById('cfDeleteBtn').style.display = char ? 'inline-block' : 'none';
+  if(char && char.additional) { document.querySelector('input[name="cfAddType"][value="prop"]').checked = true; document.getElementById('cfAdditional').classList.remove('hidden'); }
+  else { document.querySelector('input[name="cfAddType"][value="hide"]').checked = true; document.getElementById('cfAdditional').classList.add('hidden'); }
   showScreen('screen-charform');
 }
-
 async function saveCharacter(){
   const name = document.getElementById('cfName').value.trim();
   if(!name){ showAlert('Заполни имя персонажа!'); return; }
-
   const charData = {
-    name,
-    appearance: document.getElementById('cfAppearance').value.trim(),
+    name, appearance: document.getElementById('cfAppearance').value.trim(),
     character: document.querySelector('input[name="cfCharType"]:checked').value === 'prop' ? document.getElementById('cfCharacter').value.trim() : '',
     bio: document.querySelector('input[name="cfBioType"]:checked').value === 'prop' ? document.getElementById('cfBio').value.trim() : '',
     additional: document.querySelector('input[name="cfAddType"]:checked').value === 'prop' ? document.getElementById('cfAdditional').value.trim() : ''
   };
-
-  if(editingCharId){
-    charData.id = editingCharId;
-    await dbPut('characters', charData);
-  } else {
-    await dbAdd('characters', charData);
-  }
-  backToCharGallery();
-}
-
-async function deleteCurrentChar(){
-  if(!editingCharId) return;
-  if(!confirm('Удалить персонажа?')) return;
-  await dbDel('characters', editingCharId);
+  if(editingCharId){ charData.id = editingCharId; await dbPut('characters', charData); } else { await dbAdd('characters', charData); }
   backToCharGallery();
 }
 
 // ===== ФОРМА РОЛЕВОЙ =====
-async function openRoleForm(role){
+async function openRoleForm(role, fromChat = false){
+  isEditingRoleFromChat = fromChat;
   editingRoleId=role?role.id:null;
   editingModel=role?role.model:'gemini';
+  currentFolderVal = role?role.folder:'';
+  currentCharVal = role?role.myCharId:'';
+  currentRelValue = role? (role.relationship !== undefined ? role.relationship : 50) : 50;
+  
   document.getElementById('roleFormTitle').textContent=role?'Редактировать':'Новая ролевая';
   document.getElementById('rfName').value=role?role.name:'';
   document.getElementById('rfWorld').value=role?role.world||'':'';
@@ -468,62 +624,81 @@ async function openRoleForm(role){
   document.getElementById('rfChar').value=role?role.character||'':'';
   document.getElementById('rfSecondary').value=role?role.secondary||'':'';
   document.getElementById('rfLength').value=role?role.length||'':'';
-  document.getElementById('rfDeleteBtn').style.display=role?'inline-block':'none';
-  pickModel(editingModel);
   
-  allFolders=await dbAll('folders');
-  const sel=document.getElementById('rfFolder');sel.innerHTML='<option value="">Без папки</option>';
-  allFolders.forEach(f=>{const o=document.createElement('option');o.value=f.name;o.textContent=f.name;if(role&&role.folder===f.name)o.selected=true;sel.appendChild(o)});
-
-  // Заполняем список персонажей
-  allChars = await dbAll('characters');
-  const selChar = document.getElementById('rfMyChar');
-  selChar.innerHTML = '<option value="">Не выбран</option>';
-  allChars.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c.id;
-    o.textContent = c.name;
-    if(role && role.myCharId == c.id) o.selected = true;
-    selChar.appendChild(o);
-  });
-
+  updateFolderBtn(); updateCharBtn(); pickModel(editingModel);
   showScreen('screen-roleform');
+}
+function updateFolderBtn() { const btn = document.getElementById('btnSelectFolder'); btn.textContent = currentFolderVal || 'Без папки'; btn.style.color = 'var(--text)'; }
+function updateCharBtn() {
+  const btn = document.getElementById('btnSelectChar');
+  if(!currentCharVal) { btn.textContent = 'Не выбран'; btn.style.color = 'var(--text)'; return; }
+  const char = allChars.find(c => c.id == currentCharVal); btn.textContent = char ? char.name : 'Не выбран'; btn.style.color = 'var(--text)';
+}
+async function openFolderSelect() {
+  allFolders = await dbAll('folders');
+  const list = document.getElementById('folderSelectList'); list.innerHTML = '';
+  const b = document.createElement('button'); b.textContent = 'Без папки';
+  b.onclick = () => { currentFolderVal = ''; updateFolderBtn(); document.getElementById('modalFolderSelect').classList.add('hidden'); };
+  list.appendChild(b);
+  allFolders.forEach(f => {
+    const btn = document.createElement('button'); btn.textContent = f.name;
+    btn.onclick = () => { currentFolderVal = f.name; updateFolderBtn(); document.getElementById('modalFolderSelect').classList.add('hidden'); };
+    list.appendChild(btn);
+  });
+  document.getElementById('modalFolderSelect').classList.remove('hidden');
+}
+async function openCharSelect() {
+  allChars = await dbAll('characters');
+  const list = document.getElementById('charSelectList'); list.innerHTML = '';
+  const b = document.createElement('button'); b.textContent = 'Не выбран';
+  b.onclick = () => { currentCharVal = ''; updateCharBtn(); document.getElementById('modalCharSelect').classList.add('hidden'); };
+  list.appendChild(b);
+  allChars.forEach(c => {
+    const btn = document.createElement('button'); btn.textContent = c.name;
+    btn.onclick = () => { currentCharVal = c.id; updateCharBtn(); document.getElementById('modalCharSelect').classList.add('hidden'); };
+    list.appendChild(btn);
+  });
+  document.getElementById('modalCharSelect').classList.remove('hidden');
 }
 function pickModel(m){ editingModel=m; document.getElementById('btnGemini').classList.toggle('selected',m==='gemini'); document.getElementById('btnDeepseek').classList.toggle('selected',m==='deepseek'); }
 async function saveRole(){
   const data={
-    name:document.getElementById('rfName').value.trim(), folder:document.getElementById('rfFolder').value, model:editingModel,
-    myCharId: document.getElementById('rfMyChar').value,
-    length:document.getElementById('rfLength').value, world:document.getElementById('rfWorld').value, plot:document.getElementById('rfPlot').value,
-    details:document.getElementById('rfDetails').value, character:document.getElementById('rfChar').value, secondary:document.getElementById('rfSecondary').value
+    name:document.getElementById('rfName').value.trim(), folder: currentFolderVal, model:editingModel,
+    myCharId: currentCharVal, length:document.getElementById('rfLength').value, world:document.getElementById('rfWorld').value, plot:document.getElementById('rfPlot').value,
+    details:document.getElementById('rfDetails').value, character:document.getElementById('rfChar').value, secondary:document.getElementById('rfSecondary').value,
+    relationship: currentRelValue
   };
   if(!data.name){ showAlert('Введите название!'); return; }
-  if(editingRoleId){data.id=editingRoleId;await dbPut('roles',data)}else{data.createdAt=Date.now();await dbAdd('roles',data)}
-  backToCatalog();
+  
+  if(editingRoleId){
+    data.id=editingRoleId;
+    const oldRole = await dbGet('roles', editingRoleId);
+    if(oldRole && oldRole.isFavorite) data.isFavorite = true;
+    await dbPut('roles',data);
+  } else {
+    data.createdAt=Date.now(); data.isFavorite = false;
+    await dbAdd('roles',data);
+  }
+  
+  if (isEditingRoleFromChat) {
+    openChat(editingRoleId);
+    isEditingRoleFromChat = false;
+  } else {
+    backToCatalog();
+  }
 }
-async function deleteCurrentRole(){if(!editingRoleId)return;if(!confirm('Удалить ролевую?'))return;await dbDel('roles',editingRoleId);backToCatalog()}
-function editCurrentRole(){const r=allRoles.find(x=>x.id===currentRoleId);if(r)openRoleForm(r)}
 
 // ===== ПАПКИ =====
 function openFolderForm(){document.getElementById('ffName').value='';showScreen('screen-folderform')}
-async function saveFolder(){
-  const n=document.getElementById('ffName').value.trim();
-  if(!n){ showAlert('Введите название папки!'); return; }
-  await dbAdd('folders',{name:n,color:document.getElementById('ffColor').value});
-  backToCatalog();
-}
+async function saveFolder(){ const n=document.getElementById('ffName').value.trim(); if(!n){ showAlert('Введите название папки!'); return; } await dbAdd('folders',{name:n,color:document.getElementById('ffColor').value}); backToCatalog(); }
 
 // ===== НАСТРОЙКИ =====
 async function openSettings(){
   const s=await dbGet('notes','__settings__'); if(s){settings={gemini:s.gemini||'',deepseek:s.deepseek||'',autoSwitch:!!s.autoSwitch}}
   const c=await dbGet('notes','__colors__'); if(c){colors={...defaultColors,...c.colors}}
   const gp=await dbGet('notes','__global_prompt__');
-  
-  document.getElementById('keyGemini').value=settings.gemini;
-  document.getElementById('keyDeepseek').value=settings.deepseek;
-  document.getElementById('autoSwitch').checked=settings.autoSwitch;
-  document.getElementById('globalPromptInput').value=gp?gp.content:'';
-  
+  document.getElementById('keyGemini').value=settings.gemini; document.getElementById('keyDeepseek').value=settings.deepseek;
+  document.getElementById('autoSwitch').checked=settings.autoSwitch; document.getElementById('globalPromptInput').value=gp?gp.content:'';
   document.getElementById('colBg').value=colors.bg; document.getElementById('colUserMsg').value=colors.userMsg;
   document.getElementById('colUserText').value=colors.userText; document.getElementById('colBotMsg').value=colors.botMsg;
   document.getElementById('colBotText').value=colors.botText; document.getElementById('colBtn').value=colors.btn;
@@ -532,33 +707,38 @@ async function openSettings(){
   showScreen('screen-settings');
 }
 async function saveSettings(){
-  settings.gemini=document.getElementById('keyGemini').value.trim();
-  settings.deepseek=document.getElementById('keyDeepseek').value.trim();
-  settings.autoSwitch=document.getElementById('autoSwitch').checked;
-  await dbPut('notes',{roleId:'__settings__',...settings});
-
-  const gpText=document.getElementById('globalPromptInput').value.trim();
-  await dbPut('notes',{roleId:'__global_prompt__',content:gpText});
-
-  colors={
-    bg:document.getElementById('colBg').value, userMsg:document.getElementById('colUserMsg').value,
-    userText:document.getElementById('colUserText').value, botMsg:document.getElementById('colBotMsg').value,
-    botText:document.getElementById('colBotText').value, btn:document.getElementById('colBtn').value,
-    btnText:document.getElementById('colBtnText').value, inputBg:document.getElementById('colInputBg').value,
-    inputText:document.getElementById('colInputText').value, text:document.getElementById('colText').value
-  };
-  await dbPut('notes',{roleId:'__colors__',colors});
-  applyColors(); showAlert('Настройки сохранены!'); backToCatalog();
+  settings.gemini=document.getElementById('keyGemini').value.trim(); settings.deepseek=document.getElementById('keyDeepseek').value.trim();
+  settings.autoSwitch=document.getElementById('autoSwitch').checked; await dbPut('notes',{roleId:'__settings__',...settings});
+  const gpText=document.getElementById('globalPromptInput').value.trim(); await dbPut('notes',{roleId:'__global_prompt__',content:gpText});
+  colors={ bg:document.getElementById('colBg').value, userMsg:document.getElementById('colUserMsg').value, userText:document.getElementById('colUserText').value, botMsg:document.getElementById('colBotMsg').value, botText:document.getElementById('colBotText').value, btn:document.getElementById('colBtn').value, btnText:document.getElementById('colBtnText').value, inputBg:document.getElementById('colInputBg').value, inputText:document.getElementById('colInputText').value, text:document.getElementById('colText').value };
+  await dbPut('notes',{roleId:'__colors__',colors}); applyColors(); showAlert('Настройки сохранены!'); backToCatalog();
 }
 async function resetColors(){ colors={...defaultColors}; applyColors(); await dbPut('notes',{roleId:'__colors__',colors}); showAlert('Цвета сброшены'); openSettings(); }
 
 // ===== ЧАТ =====
 async function openChat(id){
-  currentRoleId=id;const r=allRoles.find(x=>x.id===id);
-  document.getElementById('chatTitle').textContent=r?r.name:'';
-  showScreen('screen-chat');await loadMessages(id);await loadNotes(id);
+  currentRoleId=id; const r=allRoles.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('chatTitle').textContent=r.name;
+  updateRelationshipBar(r.relationship !== undefined ? r.relationship : 50);
+  currentQuests = r.quests || [];
+  showScreen('screen-chat'); await loadMessages(id); await loadNotes(id);
   document.getElementById('chatInput').focus();
 }
+
+function updateRelationshipBar(val){
+  currentRelValue = val;
+  const marker = document.getElementById('relMarker');
+  const text = document.getElementById('relText');
+  marker.style.left = `${val}%`;
+  
+  if(val <= 20) text.textContent = 'Ненависть и отвращение';
+  else if(val <= 40) text.textContent = 'Прохладно, настороженно';
+  else if(val <= 60) text.textContent = 'Нейтрально';
+  else if(val <= 80) text.textContent = 'Дружески и тепло';
+  else text.textContent = 'Симпатия и привязанность';
+}
+
 async function loadMessages(id){
   const msgs=await dbByIndex('messages','roleId',id);const c=document.getElementById('chatMessages');c.innerHTML='';
   msgs.sort((a,b)=>a.timestamp-b.timestamp).forEach(m=>{
@@ -566,6 +746,11 @@ async function loadMessages(id){
     const d=document.createElement('div');d.className='msg '+m.sender;d.textContent=m.text;
     container.appendChild(d);
     
+    if(m.diceRoll) {
+       const dice = document.createElement('div'); dice.className='dice-roll'; dice.textContent=`🎲 Выпало: ${m.diceRoll}`;
+       container.appendChild(dice);
+    }
+
     const actions=document.createElement('div'); actions.className='msg-actions';
     if(m.sender==='user'){
       const btnEdit=document.createElement('button'); btnEdit.textContent='✎'; btnEdit.onclick=()=>editUserMessage(m.id, m.text);
@@ -580,11 +765,106 @@ async function loadMessages(id){
   c.scrollTop=c.scrollHeight;
 }
 
+// Кубик
+function toggleDice() {
+  isDiceActive = !isDiceActive;
+  document.getElementById('btnDice').classList.toggle('active', isDiceActive);
+}
+
+// Флажок (Квесты)
+function openQuests() {
+  renderQuestsList();
+  document.getElementById('modalQuests').classList.remove('hidden');
+  document.getElementById('questRelSelect').classList.add('hidden');
+}
+function closeQuests() { document.getElementById('modalQuests').classList.add('hidden'); }
+
+async function renderQuestsList() {
+  const container = document.getElementById('questListContainer');
+  container.innerHTML = '';
+  const r = await dbGet('roles', currentRoleId);
+  if(!r) return;
+  const quests = r.quests || [];
+  if(quests.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:13px;color:var(--muted);margin-top:10px;">Нет активных квестов</p>'; return; }
+
+  quests.forEach((q, index) => {
+    const div = document.createElement('div'); div.className = 'quest-item';
+    div.innerHTML = `<span>${escapeHtml(q)}</span>
+      <div class="quest-actions">
+        <button onclick="reworkQuest(${index})">↻</button>
+        <button onclick="deleteQuest(${index})">🗑</button>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+async function deleteQuest(index) {
+  const r = await dbGet('roles', currentRoleId);
+  if(r && r.quests) {
+    r.quests.splice(index, 1);
+    await dbPut('roles', r);
+    renderQuestsList();
+  }
+}
+
+async function reworkQuest(index) {
+  const r = await dbGet('roles', currentRoleId);
+  if(r && r.quests) {
+    r.quests.splice(index, 1);
+    await dbPut('roles', r);
+    generateQuest('random', true); // true means re-render after
+  }
+}
+
+async function generateQuest(type, isRework = false) {
+  const r = await dbGet('roles', currentRoleId);
+  if(!r) return;
+  const key = (r.model==='deepseek') ? settings.deepseek : settings.gemini;
+  if(!key) { showAlert('Введите ключ в Настройках'); return; }
+
+  let prompt = '';
+  if(type === 'random') prompt = 'Придумай интересный, неожиданный сюжетный поворот для текущей ролевой. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_strong_bad') prompt = 'Придумай событие, которое вызовет сильное ухудшение отношений между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_bad') prompt = 'Придумай событие, которое слегка ухудшит отношения между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_strong_conflict') prompt = 'Придумай событие, которое вызовет сильный конфликт между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_conflict') prompt = 'Придумай событие, которое вызовет небольшой конфликт между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_good') prompt = 'Придумай событие, которое улучшит отношения между главным NPC и персонажем игрока. Напиши только суть события в одном предложении.';
+
+  const sys = `Ты — генератор сюжетных идей. Твоя задача придумать одно короткое предложение. Не пиши приветствий, не объясняй. Только суть.`;
+  
+  try {
+    // Скрываем кнопки на время генерации
+    document.getElementById('questListContainer').innerHTML = '<p style="text-align:center;font-size:13px;color:var(--muted);margin-top:10px;">Генерация...</p>';
+    
+    let reply = '';
+    if(r.model === 'deepseek') {
+       const res = await fetch('https://api.deepseek.com/chat/completions', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key}, body:JSON.stringify({model:'deepseek-flash', messages:[{role:'system', content:sys},{role:'user', content:prompt}], temperature:0.9})});
+       if(!res.ok) throw new Error(res.status);
+       const j = await res.json(); reply = j.choices[0].message.content.trim();
+    } else {
+       const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({system_instruction:{parts:[{text:sys}]}, contents:[{role:'user', parts:[{text:prompt}]}]})});
+       if(!res.ok) throw new Error(res.status);
+       const j = await res.json(); reply = j.candidates[0].content.parts[0].text.trim();
+    }
+    
+    if(!r.quests) r.quests = [];
+    r.quests.push(reply);
+    await dbPut('roles', r);
+    
+    renderQuestsList();
+    // Обновляем массив в оперативной памяти, чтобы бот увидел квест при следующем сообщении
+    const updatedRole = allRoles.find(x => x.id === currentRoleId);
+    if(updatedRole) updatedRole.quests = r.quests;
+
+  } catch(e) {
+    showAlert('Ошибка генерации квеста: ' + e.message);
+    renderQuestsList();
+  }
+}
+
 // Редактирование своих сообщений
 function editUserMessage(id, oldText){
-  editingMessageId = id;
-  const ta = document.getElementById('editMsgInput');
-  ta.value = oldText;
+  editingMessageId = id; const ta = document.getElementById('editMsgInput'); ta.value = oldText;
   document.getElementById('modalEdit').classList.remove('hidden');
   setTimeout(()=>{ ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 300) + 'px'; }, 50);
 }
@@ -592,64 +872,50 @@ function closeEditModal(){ document.getElementById('modalEdit').classList.add('h
 async function saveEditedMessage(){
   const newText = document.getElementById('editMsgInput').value.trim();
   if(!newText || !editingMessageId) return closeEditModal();
-  
   const msgs = await dbByIndex('messages','roleId',currentRoleId);
   const allSorted = msgs.sort((a,b)=>a.timestamp-b.timestamp);
   const targetIndex = allSorted.findIndex(m => m.id === editingMessageId);
-  
   if(targetIndex === -1) return closeEditModal();
-
-  for(let i = targetIndex; i < allSorted.length; i++){
-    await dbDel('messages', allSorted[i].id);
-  }
-  
+  for(let i = targetIndex; i < allSorted.length; i++){ await dbDel('messages', allSorted[i].id); }
   await dbAdd('messages',{roleId:currentRoleId,sender:'user',text:newText,timestamp:Date.now()});
-  closeEditModal();
-  await loadMessages(currentRoleId);
-  await generateBotReply(); 
+  closeEditModal(); await loadMessages(currentRoleId); await generateBotReply(); 
 }
 
 // Переделка постов бота
 function openReworkModal(msgId){ reworkMessageId=msgId; document.getElementById('modalRework').classList.remove('hidden'); }
 function closeModal(){ document.getElementById('modalRework').classList.add('hidden'); }
-
 async function doRework(type, instruction){
   closeModal();
   const r=allRoles.find(x=>x.id===currentRoleId); if(!r) return;
   const key=(r.model==='deepseek')?settings.deepseek:settings.gemini; if(!key) return showAlert('Введите ключ в Настройках (⚙)');
-  
   const msgs = await dbByIndex('messages','roleId',currentRoleId);
   const sorted = msgs.sort((a,b)=>a.timestamp-b.timestamp);
   const targetIdx = sorted.findIndex(m => m.id === reworkMessageId);
   const oldBotMsg = sorted[targetIdx];
-  
-  await dbDel('messages', reworkMessageId);
-  await loadMessages(currentRoleId);
-  
-  const startIdx = Math.max(0, targetIdx - 8);
-  const contextMsgs = sorted.slice(startIdx, targetIdx);
-  
+  await dbDel('messages', reworkMessageId); await loadMessages(currentRoleId);
+  const startIdx = Math.max(0, targetIdx - 8); const contextMsgs = sorted.slice(startIdx, targetIdx);
   const c=document.getElementById('chatMessages');const wait=document.createElement('div');wait.className='msg bot';wait.textContent='…';wait.id='waitMsg';c.appendChild(wait);c.scrollTop=c.scrollHeight;
-
   try {
     const reply = await callAI(r, contextMsgs, `ПЕРЕДЕЛАЙ СВОЙ ПРЕДЫДУЩИЙ ОТВЕТ. Старый текст: "${oldBotMsg.text}". Инструкция: ${instruction}`, key);
     document.getElementById('waitMsg')?.remove();
     await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now()});
     await loadMessages(currentRoleId);
-  } catch(e) {
-    document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message);
-  }
+    await checkRelationshipUpdate(reply, r);
+  } catch(e) { document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message); }
 }
 
 // Отправка сообщения
 async function sendMessage(){
   const inp=document.getElementById('chatInput');const text=inp.value.trim();if(!text||!currentRoleId)return;
-  await dbAdd('messages',{roleId:currentRoleId,sender:'user',text,timestamp:Date.now()});
+  let userDice = null;
+  if(isDiceActive) { userDice = Math.floor(Math.random() * 20) + 1; isDiceActive = false; document.getElementById('btnDice').classList.remove('active'); }
+  
+  await dbAdd('messages',{roleId:currentRoleId,sender:'user',text,timestamp:Date.now(), diceRoll: userDice});
   inp.value='';inp.style.height='auto';await loadMessages(currentRoleId);
-  await generateBotReply();
+  await generateBotReply(userDice);
 }
 
-async function generateBotReply(){
+async function generateBotReply(userDice = null){
   const r=allRoles.find(x=>x.id===currentRoleId); if(!r){showAlert('Ролевая не найдена');return}
   const key=(r.model==='deepseek')?settings.deepseek:settings.gemini;
   if(!key){showAlert('Введите ключ в Настройках (⚙)');return}
@@ -661,33 +927,51 @@ async function generateBotReply(){
     const sorted = msgs.sort((a,b)=>a.timestamp-b.timestamp);
     const last8 = sorted.slice(-8);
     
-    let reply = await callAI(r, last8, null, key);
+    let diceInstruction = '';
+    let botDice = null;
+    if(userDice !== null) {
+       botDice = Math.floor(Math.random() * 20) + 1;
+       if(userDice > botDice) diceInstruction = `\n[СИСТЕМА КУБИКА]: Игрок выкинул ${userDice}, ты выкинул ${botDice}. Игрок победил в этом противостоянии. Опиши успех игрока.`;
+       else if(botDice > userDice) diceInstruction = `\n[СИСТЕМА КУБИКА]: Игрок выкинул ${userDice}, ты выкинул ${botDice}. Ты победил в этом противостоянии. Опиши провал или сопротивление игрока.`;
+       else diceInstruction = `\n[СИСТЕМА КУБИКА]: Ничья (оба выкинули ${userDice}). Опиши неопределенный исход.`;
+    }
+
+    let reply = await callAI(r, last8, diceInstruction, key);
     document.getElementById('waitMsg')?.remove();
-    await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now()});
+    await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now(), diceRoll: botDice});
     await loadMessages(currentRoleId);
+    await checkRelationshipUpdate(reply, r);
   }catch(e){
     document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message);
   }
 }
 
+async function checkRelationshipUpdate(botReply, role) {
+  // Мы просим нейросеть (или ищем маркер) обновить отношения. В рамках этого кода мы делаем это скрыто.
+  // Для простоты сделаем так: каждый пост бота немного меняет отношения в зависимости от тона.
+  // В реальном приложении тут был бы второй запрос к ИИ, но чтобы не тратить токены, мы используем локальную эвристику.
+  let change = 0;
+  const lowerReply = botReply.toLowerCase();
+  if(lowerReply.match(/улыб|нежн|смех|благодар|тепл|обня/)) change = 2;
+  if(lowerReply.match(/груб|зл|крич|удар|отверг|презр/)) change = -2;
+  
+  if(change !== 0) {
+     let newVal = (role.relationship || 50) + change;
+     if(newVal > 100) newVal = 100;
+     if(newVal < 0) newVal = 0;
+     role.relationship = newVal;
+     await dbPut('roles', role);
+     updateRelationshipBar(newVal);
+  }
+}
+
 async function callAI(role, contextMsgs, extraInstruction, key){
-  const notes=await dbGet('notes',role.id);
-  const mem=notes?notes.content:'';
-  const gpData=await dbGet('notes','__global_prompt__');
-  const globalPrompt=gpData?gpData.content:'';
-
-  let lengthRule = '';
-  if(role.length) {
-    const len = parseInt(role.length);
-    lengthRule = `\nВАЖНОЕ ПРАВИЛО ДЛИНЫ: Пиши пост объемом примерно ${len} символов (отклонение не более 100 символов).`;
-  }
-
-  let secondaryRule = '';
-  if(role.secondary) {
-    secondaryRule = `\nВторостепенные персонажи (используй для фона, не перетягивай на них внимание): ${role.secondary}`;
-  }
-
-  // Формируем карточку МОЕГО персонажа
+  const notes=await dbGet('notes',role.id); const mem=notes?notes.content:'';
+  const gpData=await dbGet('notes','__global_prompt__'); const globalPrompt=gpData?gpData.content:'';
+  
+  let lengthRule = role.length ? `\nВАЖНОЕ ПРАВИЛО ДЛИНЫ: Пиши пост объемом примерно ${role.length} символов (отклонение не более 100 символов).` : '';
+  let secondaryRule = role.secondary ? `\nВторостепенные персонажи (используй для фона, не перетягивай на них внимание): ${role.secondary}` : '';
+  
   let myCharRule = '';
   if(role.myCharId) {
     const myChar = allChars.find(c => c.id == role.myCharId);
@@ -700,6 +984,13 @@ async function callAI(role, contextMsgs, extraInstruction, key){
     }
   }
 
+  let questsRule = '';
+  const activeRole = allRoles.find(x => x.id === currentRoleId);
+  if(activeRole && activeRole.quests && activeRole.quests.length > 0) {
+    questsRule = `\n--- АКТИВНЫЕ СЮЖЕТНЫЕ КВЕСТЫ (Ты ОБЯЗАН вписать их в сюжет в ближайшее время) ---\n`;
+    activeRole.quests.forEach((q, i) => { questsRule += `${i+1}. ${q}\n`; });
+  }
+
   const sys = `${globalPrompt}
 --- ДАННЫЕ РОЛЕВОЙ ---
 Вселенная: ${role.world||'не указана'}
@@ -707,6 +998,7 @@ async function callAI(role, contextMsgs, extraInstruction, key){
 Детали мира: ${role.details||'не указаны'}
 Главный персонаж (твой, NPC): ${role.character||'не указан'}${secondaryRule}
 ${myCharRule}
+${questsRule}
 Память (важное): ${mem||'пока пусто'}${lengthRule}
 ${extraInstruction ? `\nСПЕЦИАЛЬНАЯ ИНСТРУКЦИЯ: ${extraInstruction}` : ''}`;
 
@@ -736,4 +1028,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-                                                                                                                                               </html>
+      </html>
