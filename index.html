@@ -148,8 +148,8 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group">
     <label>Характер</label>
     <div class="radio-group">
-      <label class="radio-label"><input type="radio" name="cfCharType" value="hide" checked onchange="toggleCharField('cfCharacter', 'cfCharType')"><span>Раскроется по ходу ролевой</span></label>
-      <label class="radio-label"><input type="radio" name="cfCharType" value="prop" onchange="toggleCharField('cfCharacter', 'cfCharType')"><span>Прописать</span></label>
+      <label class="radio-label"><input type="radio" name="cfCharType" value="hide" checked onchange="document.getElementById('cfCharacter').classList.add('hidden')"><span>Раскроется по ходу ролевой</span></label>
+      <label class="radio-label"><input type="radio" name="cfCharType" value="prop" onchange="document.getElementById('cfCharacter').classList.remove('hidden')"><span>Прописать</span></label>
     </div>
     <textarea id="cfCharacter" class="hidden" rows="2" placeholder="Опишите характер..."></textarea>
   </div>
@@ -157,8 +157,8 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group">
     <label>Биография</label>
     <div class="radio-group">
-      <label class="radio-label"><input type="radio" name="cfBioType" value="hide" checked onchange="toggleCharField('cfBio', 'cfBioType')"><span>Раскроется по ходу ролевой</span></label>
-      <label class="radio-label"><input type="radio" name="cfBioType" value="prop" onchange="toggleCharField('cfBio', 'cfBioType')"><span>Прописать</span></label>
+      <label class="radio-label"><input type="radio" name="cfBioType" value="hide" checked onchange="document.getElementById('cfBio').classList.add('hidden')"><span>Раскроется по ходу ролевой</span></label>
+      <label class="radio-label"><input type="radio" name="cfBioType" value="prop" onchange="document.getElementById('cfBio').classList.remove('hidden')"><span>Прописать</span></label>
     </div>
     <textarea id="cfBio" class="hidden" rows="2" placeholder="Опишите биографию..."></textarea>
   </div>
@@ -166,8 +166,8 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group">
     <label>Дополнительно</label>
     <div class="radio-group">
-      <label class="radio-label"><input type="radio" name="cfAddType" value="hide" checked onchange="toggleCharField('cfAdditional', 'cfAddType')"><span>Раскроется по ходу ролевой</span></label>
-      <label class="radio-label"><input type="radio" name="cfAddType" value="prop" onchange="toggleCharField('cfAdditional', 'cfAddType')"><span>Прописать</span></label>
+      <label class="radio-label"><input type="radio" name="cfAddType" value="hide" checked onchange="document.getElementById('cfAdditional').classList.add('hidden')"><span>Раскроется по ходу ролевой</span></label>
+      <label class="radio-label"><input type="radio" name="cfAddType" value="prop" onchange="document.getElementById('cfAdditional').classList.remove('hidden')"><span>Прописать</span></label>
     </div>
     <textarea id="cfAdditional" class="hidden" rows="2" placeholder="Дополнительная информация..."></textarea>
   </div>
@@ -575,11 +575,6 @@ async function confirmDeleteChar() {
   renderCharGallery();
 }
 
-function toggleCharField(id, radioName){
-  const selected = document.querySelector(`input[name="${radioName}"]:checked`);
-  if(selected && selected.value === 'prop') document.getElementById(id).classList.remove('hidden');
-  else document.getElementById(id).classList.add('hidden');
-}
 async function openCharForm(char){
   editingCharId = char ? char.id : null;
   document.getElementById('charFormTitle').textContent = char ? 'Редактировать' : 'Новый персонаж';
@@ -1000,4 +995,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-        </html>
+                           </html>
