@@ -108,7 +108,6 @@ input,textarea,select,button{font-family:inherit}
 .icon-btn{background:none; border:none; font-size:28px; cursor:pointer; padding:8px;}
 .icon-btn.del{color:#cf6679;}
 
-/* Список квестов */
 .quest-list{display:flex; flex-direction:column; gap:8px; margin-top:10px;}
 .quest-item{background:var(--input-bg); border:1px solid var(--border); border-radius:12px; padding:12px; font-size:14px; display:flex; justify-content:space-between; align-items:center; gap:10px;}
 .quest-item span{flex:1;}
@@ -715,6 +714,11 @@ async function saveRole(){
   }
 }
 
+function editCurrentRole(){ 
+  const r=allRoles.find(x=>x.id===currentRoleId); 
+  if(r) openRoleForm(r, true); // Передаем true, чтобы вернуться в чат
+}
+
 // ===== ПАПКИ =====
 function openFolderForm(){document.getElementById('ffName').value='';showScreen('screen-folderform')}
 async function saveFolder(){ const n=document.getElementById('ffName').value.trim(); if(!n){ showAlert('Введите название папки!'); return; } await dbAdd('folders',{name:n,color:document.getElementById('ffColor').value}); backToCatalog(); }
@@ -954,9 +958,9 @@ async function generateBotReply(userDice = null){
     let botDice = null;
     if(userDice !== null) {
        botDice = Math.floor(Math.random() * 20) + 1;
-       if(userDice > botDice) diceInstruction = `\n[СИСТЕМА КУБИКА]: Игрок выкинул ${userDice}, ты выкинул ${botDice}. Игрок победил в этом противостоянии. Опиши успех игрока.`;
-       else if(botDice > userDice) diceInstruction = `\n[СИСТЕМА КУБИКА]: Игрок выкинул ${userDice}, ты выкинул ${botDice}. Ты победил в этом противостоянии. Опиши провал или сопротивление игрока.`;
-       else diceInstruction = `\n[СИСТЕМА КУБИКА]: Ничья (оба выкинули ${userDice}). Опиши неопределенный исход.`;
+       if(userDice > botDice) diceInstruction = `\n[СИСТЕМА КУБИКА]: Игрок выкинул ${userDice}, ты выкинул ${botDice}. Игрок победил. Опиши успех игрока.`;
+       else if(botDice > userDice) diceInstruction = `\n[СИСТЕМА КУБИКА]: Игрок выкинул ${userDice}, ты выкинул ${botDice}. Ты победил. Опиши провал игрока.`;
+       else diceInstruction = `\n[СИСТЕМА КУБИКА]: Ничья. Опиши неопределенный исход.`;
     }
 
     let reply = await callAI(r, last8, diceInstruction, key);
@@ -970,11 +974,13 @@ async function generateBotReply(userDice = null){
 }
 
 async function checkRelationshipUpdate(botReply, role) {
-  // Локальная эвристика для изменения отношений
+  // Используем скрытую инструкцию для бота, чтобы он сам ставил оценку. 
+  // Так как мы не можем заставить его вернуть JSON, мы ищем маркер в тексте.
+  // Но пока используем простую логику:
   let change = 0;
   const lowerReply = botReply.toLowerCase();
-  if(lowerReply.match(/улыб|нежн|смех|благодар|тепл|обня|смутил|рад/)) change = 3;
-  if(lowerReply.match(/груб|зл|крич|удар|отверг|презр|хмур|напряг/)) change = -3;
+  if(lowerReply.match(/улыб|нежн|смех|благодар|тепл|обня|смутил|рад|согласи/)) change = 2;
+  if(lowerReply.match(/груб|зл|крич|удар|отверг|презр|хмур|напряг|отказ/)) change = -2;
   
   if(change !== 0) {
      let newVal = (role.relationship || 50) + change;
@@ -1051,4 +1057,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-                                                            </html>
+  </html>
