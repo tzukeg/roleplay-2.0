@@ -82,7 +82,6 @@ input,textarea,select,button{font-family:inherit}
 .char-actions{display:flex; gap:12px; align-items:center;}
 .char-actions button{background:none; border:none; color:var(--text); font-size:18px; cursor:pointer; padding:4px;}
 
-/* Модальные окна */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(2px)}
 .modal-content{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.5);max-height: 85vh; overflow-y: auto;}
 .modal-content h3{text-align:center;margin-bottom:8px;font-size:18px}
@@ -110,7 +109,6 @@ input,textarea,select,button{font-family:inherit}
 </head>
 <body>
 
-<!-- ЭКРАН: КАТАЛОГ -->
 <div id="screen-catalog" class="screen active">
   <div class="header-bar">
     <h1>𝙆𝙚𝙟𝙟</h1>
@@ -124,7 +122,6 @@ input,textarea,select,button{font-family:inherit}
   <div id="rolesContainer" class="role-list"></div>
 </div>
 
-<!-- ЭКРАН: ГАЛЕРЕЯ ПЕРСОНАЖЕЙ -->
 <div id="screen-chargallery" class="screen">
   <div class="header-bar">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
@@ -136,7 +133,6 @@ input,textarea,select,button{font-family:inherit}
   <div id="charsContainer" class="char-list"></div>
 </div>
 
-<!-- ЭКРАН: ФОРМА ПЕРСОНАЖА -->
 <div id="screen-charform" class="screen">
   <div class="header-bar">
     <button class="btn btn-secondary btn-small" onclick="backToCharGallery()">← Назад</button>
@@ -177,7 +173,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- ЭКРАН: ФОРМА РОЛЕВОЙ -->
 <div id="screen-roleform" class="screen">
   <div class="header-bar">
     <button class="btn btn-secondary btn-small" onclick="backFromRoleForm()">← Назад</button>
@@ -212,7 +207,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- ЭКРАН: ЧАТ -->
 <div id="screen-chat" class="screen" style="padding:0;">
   <div class="header-bar" style="padding:16px 16px 0 16px; margin-bottom:16px;">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
@@ -237,7 +231,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- ЭКРАН: НАСТРОЙКИ -->
 <div id="screen-settings" class="screen">
   <div class="header-bar">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
@@ -277,7 +270,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- ЭКРАН: ФОРМА ПАПКИ -->
 <div id="screen-folderform" class="screen">
   <div class="header-bar">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
@@ -288,16 +280,13 @@ input,textarea,select,button{font-family:inherit}
   <button class="btn" onclick="saveFolder()">Сохранить</button>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО: ФЛАЖОК (КВЕСТЫ) -->
 <div id="modalQuests" class="modal-overlay hidden">
   <div class="modal-content">
     <h3>🚩 Сюжетные повороты</h3>
-    
     <div style="display:flex; gap:8px;">
       <button class="btn btn-small" style="flex:1;" onclick="generateQuest('random')">Случайный поворот</button>
       <button class="btn btn-small btn-secondary" style="flex:1;" onclick="document.getElementById('questRelSelect').classList.toggle('hidden')">Для отношений</button>
     </div>
-    
     <div id="questRelSelect" class="hidden" style="display:flex; flex-direction:column; gap:6px; margin-top:8px; background:var(--input-bg); padding:10px; border-radius:12px;">
       <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_strong_bad')">Сильное ухудшение</button>
       <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_bad')">Ухудшение отношений</button>
@@ -305,14 +294,11 @@ input,textarea,select,button{font-family:inherit}
       <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_conflict')">Конфликт</button>
       <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_good')">Улучшение отношений</button>
     </div>
-
     <div id="questListContainer" class="quest-list"></div>
-
     <button class="btn-secondary" onclick="closeQuests()" style="text-align:center;margin-top:8px;background:transparent;border:none;">Закрыть</button>
   </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО ВЫБОРА ПАПКИ -->
 <div id="modalFolderSelect" class="modal-overlay hidden">
   <div class="modal-content">
     <h3>Выберите папку</h3>
@@ -321,7 +307,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО ВЫБОРА ПЕРСОНАЖА -->
 <div id="modalCharSelect" class="modal-overlay hidden">
   <div class="modal-content">
     <h3>Выберите персонажа</h3>
@@ -330,7 +315,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
 <div id="modalEdit" class="modal-overlay hidden">
   <div class="modal-content">
     <h3>Редактировать сообщение</h3>
@@ -342,7 +326,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО ПЕРЕДЕЛКИ -->
 <div id="modalRework" class="modal-overlay hidden">
   <div class="modal-content">
     <h3>Как переделать пост?</h3>
@@ -354,7 +337,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКОШКО ДЛЯ ПРЕДУПРЕЖДЕНИЙ -->
 <div id="modalAlert" class="modal-overlay hidden">
   <div class="modal-content">
     <h3>Внимание</h3>
@@ -363,18 +345,15 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- МИНИ-ОКОШКО ПРИ ДОЛГОМ НАЖАТИИ НА РОЛЕВУЮ -->
 <div id="modalLongPress" class="action-menu-overlay hidden">
   <div class="action-menu-content">
     <h3 id="lpRoleName">Название</h3>
-    
     <div id="lpActions">
       <div class="action-buttons">
         <button class="icon-btn" onclick="editFromLongPress()">✎</button>
         <button class="icon-btn del" onclick="showDeleteConfirm()">❌</button>
       </div>
     </div>
-
     <div id="lpDeleteConfirm" class="hidden">
       <p style="text-align:center; font-size:16px; margin-bottom:12px; color:var(--text);">Удалить?</p>
       <div style="display:flex; gap:10px;">
@@ -382,12 +361,10 @@ input,textarea,select,button{font-family:inherit}
         <button class="btn" style="flex:1; background:transparent; color:var(--text); border:none; font-size:18px;" onclick="closeLongPress()">Нет</button>
       </div>
     </div>
-
     <button class="btn-secondary" onclick="closeLongPress()" style="text-align:center;background:transparent;border:none;margin-top:8px;">Отмена</button>
   </div>
 </div>
 
-<!-- ОКОШКО УДАЛЕНИЯ ПЕРСОНАЖА -->
 <div id="modalCharDelete" class="action-menu-overlay hidden">
   <div class="action-menu-content">
     <h3>Удалить?</h3>
@@ -399,7 +376,6 @@ input,textarea,select,button{font-family:inherit}
 </div>
 
 <script>
-// ===== БАЗА ДАННЫХ =====
 let db;
 const DB_NAME='RoleplayDB', DB_VERSION=3;
 function initDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onerror=()=>rej(r.error);r.onsuccess=()=>{db=r.result;res()};r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('roles'))d.createObjectStore('roles',{keyPath:'id',autoIncrement:true});if(!d.objectStoreNames.contains('messages')){const s=d.createObjectStore('messages',{keyPath:'id',autoIncrement:true});s.createIndex('roleId','roleId',{unique:false})}if(!d.objectStoreNames.contains('notes'))d.createObjectStore('notes',{keyPath:'roleId'});if(!d.objectStoreNames.contains('folders'))d.createObjectStore('folders',{keyPath:'id',autoIncrement:true});if(!d.objectStoreNames.contains('characters'))d.createObjectStore('characters',{keyPath:'id',autoIncrement:true})}})}
@@ -410,7 +386,6 @@ function dbGet(s,k){return new Promise((res,rej)=>{const t=db.transaction(s,'rea
 function dbDel(s,k){return new Promise((res,rej)=>{const t=db.transaction(s,'readwrite');const r=t.objectStore(s).delete(k);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
 function dbByIndex(s,i,v){return new Promise((res,rej)=>{const t=db.transaction(s,'readonly');const r=t.objectStore(s).index(i).getAll(v);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 
-// ===== ПЕРЕМЕННЫЕ =====
 let currentRoleId=null, allRoles=[], allFolders=[], allChars=[], editingRoleId=null, editingModel='gemini';
 let editingCharId=null;
 let currentFolderVal='';
@@ -425,11 +400,9 @@ let lpRoleId=null;
 let editingCharIdForDelete=null;
 let isEditingRoleFromChat = false; 
 
-// ===== ОКОШКИ =====
 function showAlert(msg) { document.getElementById('alertText').textContent = msg; document.getElementById('modalAlert').classList.remove('hidden'); }
 function closeAlert() { document.getElementById('modalAlert').classList.add('hidden'); }
 
-// ===== НАВИГАЦИЯ =====
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
 function backToCatalog(){showScreen('screen-catalog');renderCatalog()}
 function backFromRoleForm() {
@@ -443,7 +416,6 @@ function backFromRoleForm() {
 function openCharGallery(){ showScreen('screen-chargallery'); renderCharGallery(); }
 function backToCharGallery(){ showScreen('screen-chargallery'); renderCharGallery(); }
 
-// ===== ПРИМЕНЕНИЕ ЦВЕТОВ =====
 function applyColors(){
   const r=document.documentElement.style;
   r.setProperty('--bg',colors.bg); r.setProperty('--user-msg',colors.userMsg); r.setProperty('--user-msg-text',colors.userText);
@@ -454,7 +426,6 @@ function applyColors(){
   document.querySelector('meta[name=theme-color]')?.setAttribute('content',colors.bg);
 }
 
-// ===== КАТАЛОГ =====
 async function renderCatalog(){
   const term=(document.getElementById('searchInput').value||'').toLowerCase();
   allRoles=await dbAll('roles');allFolders=await dbAll('folders');
@@ -520,7 +491,6 @@ async function toggleFavorite(e, id) {
   }
 }
 
-// ===== ДОЛГОЕ НАЖАТИЕ =====
 function openLongPress(id, name) {
   lpRoleId = id;
   document.getElementById('lpRoleName').textContent = name;
@@ -547,7 +517,6 @@ async function confirmDeleteRole() {
   closeLongPress(); renderCatalog();
 }
 
-// ===== ПЕРСОНАЖИ =====
 async function renderCharGallery(){
   allChars = await dbAll('characters');
   const c = document.getElementById('charsContainer'); c.innerHTML = '';
@@ -609,7 +578,6 @@ async function saveCharacter(){
   backToCharGallery();
 }
 
-// ===== ФОРМА РОЛЕВОЙ =====
 async function openRoleForm(role, fromChat = false){
   isEditingRoleFromChat = fromChat;
   editingRoleId=role?role.id:null;
@@ -694,11 +662,9 @@ function editCurrentRole(){
   if(r) openRoleForm(r, true); 
 }
 
-// ===== ПАПКИ =====
 function openFolderForm(){document.getElementById('ffName').value='';showScreen('screen-folderform')}
 async function saveFolder(){ const n=document.getElementById('ffName').value.trim(); if(!n){ showAlert('Введите название папки!'); return; } await dbAdd('folders',{name:n,color:document.getElementById('ffColor').value}); backToCatalog(); }
 
-// ===== НАСТРОЙКИ =====
 async function openSettings(){
   const s=await dbGet('notes','__settings__'); if(s){settings={gemini:s.gemini||'',deepseek:s.deepseek||'',autoSwitch:!!s.autoSwitch}}
   const c=await dbGet('notes','__colors__'); if(c){colors={...defaultColors,...c.colors}}
@@ -721,7 +687,6 @@ async function saveSettings(){
 }
 async function resetColors(){ colors={...defaultColors}; applyColors(); await dbPut('notes',{roleId:'__colors__',colors}); showAlert('Цвета сброшены'); openSettings(); }
 
-// ===== ЧАТ =====
 async function openChat(id){
   currentRoleId=id; const r=allRoles.find(x=>x.id===id);
   if(!r) return;
@@ -761,7 +726,6 @@ function toggleDice() {
   document.getElementById('btnDice').classList.toggle('active', isDiceActive);
 }
 
-// Флажок (Квесты)
 function openQuests() {
   renderQuestsList();
   document.getElementById('modalQuests').classList.remove('hidden');
@@ -850,7 +814,6 @@ async function generateQuest(type, isRework = false) {
   }
 }
 
-// Редактирование своих сообщений
 function editUserMessage(id, oldText){
   editingMessageId = id; const ta = document.getElementById('editMsgInput'); ta.value = oldText;
   document.getElementById('modalEdit').classList.remove('hidden');
@@ -869,7 +832,6 @@ async function saveEditedMessage(){
   closeEditModal(); await loadMessages(currentRoleId); await generateBotReply(); 
 }
 
-// Переделка постов бота
 function openReworkModal(msgId){ reworkMessageId=msgId; document.getElementById('modalRework').classList.remove('hidden'); }
 function closeModal(){ document.getElementById('modalRework').classList.add('hidden'); }
 async function doRework(type, instruction){
@@ -891,7 +853,6 @@ async function doRework(type, instruction){
   } catch(e) { document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message); }
 }
 
-// Отправка сообщения
 async function sendMessage(){
   const inp=document.getElementById('chatInput');const text=inp.value.trim();if(!text||!currentRoleId)return;
   let userDice = null;
@@ -986,7 +947,6 @@ function toggleNotes(){document.getElementById('notesPanel').classList.toggle('h
 async function loadNotes(id){const n=await dbGet('notes',id);document.getElementById('notesContent').value=n?n.content:''}
 async function saveNotes(){if(!currentRoleId)return;await dbPut('notes',{roleId:currentRoleId,content:document.getElementById('notesContent').value});showAlert('Сохранено')}
 
-// ===== СТАРТ =====
 initDB().then(async()=>{
   const c=await dbGet('notes','__colors__'); if(c&&c.colors)colors={...defaultColors,...c.colors}; applyColors();
   const s=await dbGet('notes','__settings__'); if(s)settings={gemini:s.gemini||'',deepseek:s.deepseek||'',autoSwitch:!!s.autoSwitch};
@@ -995,4 +955,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-                           </html>
+  </html>
