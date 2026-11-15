@@ -35,6 +35,13 @@ input,textarea,select,button{font-family:inherit}
 .header-bar h1{flex:1;font-size:24px; letter-spacing: 1px;}
 .header-bar h2{flex:1;font-size:20px}
 
+/* Выпадающее меню ролевой */
+.chat-header {position:relative; display:flex; align-items:center; padding:16px 16px 0 16px; margin-bottom:16px; gap:12px;}
+.chat-dropdown {position:absolute; top:60px; right:16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,0.8); display:flex; flex-direction:column; gap:8px; padding:12px; z-index:100; transform-origin: top right; transition: all 0.2s ease;}
+.chat-dropdown.hidden {transform: scale(0.9); opacity:0; pointer-events:none;}
+.chat-dropdown button {background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:10px 16px; border-radius:12px; font-size:15px; display:flex; align-items:center; gap:8px; cursor:pointer;}
+.chat-dropdown button:active {background:var(--btn-bg); color:var(--btn-text);}
+
 .chat-messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:12px;padding:4px}
 .msg-container{display:flex;flex-direction:column;max-width:85%;position:relative}
 .msg-container.user{align-self:flex-end;align-items:flex-end}
@@ -52,8 +59,6 @@ input,textarea,select,button{font-family:inherit}
 .btn-dice{background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer;}
 .btn-dice.active{background:var(--accent); color:#000; border-color:var(--accent);}
 
-.notes-panel{background:var(--surface2);border-radius:var(--radius);padding:16px;margin-top:12px;font-size:14px; display:flex; flex-direction:column;}
-.notes-panel textarea{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--input-text);padding:12px;font-size:14px;min-height:120px;resize:vertical;margin-top:8px;outline:none}
 .hidden{display:none!important}
 .form-group{margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
 .form-group label{font-size:14px;color:var(--muted)}
@@ -105,6 +110,11 @@ input,textarea,select,button{font-family:inherit}
 .quest-item span{flex:1;}
 .quest-actions{display:flex; gap:8px;}
 .quest-actions button{background:none; border:none; color:var(--text); cursor:pointer; font-size:16px;}
+
+/* Вкладки блокнота */
+.tabs{display:flex; gap:6px; margin-bottom:10px;}
+.tabs button{flex:1; padding:10px 4px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text); font-size:12px; font-weight:600; cursor:pointer;}
+.tabs button.active{background:var(--btn-bg); color:var(--btn-text); border-color:var(--btn-bg);}
 </style>
 </head>
 <body>
@@ -208,21 +218,20 @@ input,textarea,select,button{font-family:inherit}
 </div>
 
 <div id="screen-chat" class="screen" style="padding:0;">
-  <div class="header-bar" style="padding:16px 16px 0 16px; margin-bottom:16px;">
+  <!-- Шапка чата с выпадающим меню -->
+  <div class="chat-header">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
-    <h2 id="chatTitle">Ролевая</h2>
-    <button class="btn btn-secondary btn-small" onclick="openQuests()">🚩</button>
-    <button class="btn btn-secondary btn-small" onclick="toggleNotes()">📝</button>
-    <button class="btn btn-secondary btn-small" onclick="editCurrentRole()">✎</button>
+    <h2 id="chatTitle" style="flex:1;">Ролевая</h2>
+    <button class="btn btn-secondary btn-small" onclick="toggleChatMenu(event)">⚙ Настройки</button>
+    
+    <div id="chatDropdownMenu" class="chat-dropdown hidden">
+      <button onclick="openQuests(); toggleChatMenu(event)">🚩 Сюжетные повороты</button>
+      <button onclick="openNotes(); toggleChatMenu(event)">📝 Блокноты</button>
+      <button onclick="editCurrentRole(); toggleChatMenu(event)">✎ Редактировать</button>
+    </div>
   </div>
 
   <div id="chatMessages" class="chat-messages" style="padding:0 16px;"></div>
-  
-  <div id="notesPanel" class="notes-panel hidden" style="margin:0 16px 12px 16px;">
-    <strong>Блокнот (ключевая информация)</strong>
-    <textarea id="notesContent" placeholder="Что бот должен помнить..."></textarea>
-    <button class="btn btn-small" style="margin-top:8px;" onclick="saveNotes()">Сохранить заметки</button>
-  </div>
 
   <div class="chat-input-row" style="padding:0 16px 16px 16px; position:relative;">
     <button class="btn-dice" id="btnDice" onclick="toggleDice()">🎲</button>
@@ -280,6 +289,29 @@ input,textarea,select,button{font-family:inherit}
   <button class="btn" onclick="saveFolder()">Сохранить</button>
 </div>
 
+<!-- МОДАЛЬНОЕ ОКНО: БЛОКНОТЫ -->
+<div id="modalNotes" class="modal-overlay hidden">
+  <div class="modal-content" style="max-width: 500px;">
+    <h3>📝 Блокноты</h3>
+    
+    <div class="tabs">
+      <button id="tabBtn1" onclick="switchNoteTab(1)" class="active">О персонаже</button>
+      <button id="tabBtn2" onclick="switchNoteTab(2)">О вашем</button>
+      <button id="tabBtn3" onclick="switchNoteTab(3)">Другое</button>
+    </div>
+
+    <textarea id="noteArea1" placeholder="Факты о персонаже бота..."></textarea>
+    <textarea id="noteArea2" class="hidden" placeholder="Факты о вашем персонаже..."></textarea>
+    <textarea id="noteArea3" class="hidden" placeholder="События, мир, важные детали..."></textarea>
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button class="btn" style="flex:1;" onclick="saveAllNotes()">Сохранить всё</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('modalNotes').classList.add('hidden')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО: КВЕСТЫ -->
 <div id="modalQuests" class="modal-overlay hidden">
   <div class="modal-content">
     <h3>🚩 Сюжетные повороты</h3>
@@ -399,6 +431,8 @@ let editingMessageId=null;
 let lpRoleId=null;
 let editingCharIdForDelete=null;
 let isEditingRoleFromChat = false; 
+let activeNoteTab = 1;
+let currentNotes = {n1:'', n2:'', n3:''};
 
 function showAlert(msg) { document.getElementById('alertText').textContent = msg; document.getElementById('modalAlert').classList.remove('hidden'); }
 function closeAlert() { document.getElementById('modalAlert').classList.add('hidden'); }
@@ -425,6 +459,21 @@ function applyColors(){
   r.setProperty('--text',colors.text); r.setProperty('--accent',colors.btn);
   document.querySelector('meta[name=theme-color]')?.setAttribute('content',colors.bg);
 }
+
+function toggleChatMenu(e) {
+  if(e) e.stopPropagation();
+  const menu = document.getElementById('chatDropdownMenu');
+  menu.classList.toggle('hidden');
+}
+
+// Закрытие меню по клику вне его
+document.addEventListener('click', function(event) {
+  const menu = document.getElementById('chatDropdownMenu');
+  const btn = document.querySelector('.chat-header button[onclick*="toggleChatMenu"]');
+  if(menu && !menu.contains(event.target) && event.target !== btn) {
+    menu.classList.add('hidden');
+  }
+});
 
 async function renderCatalog(){
   const term=(document.getElementById('searchInput').value||'').toLowerCase();
@@ -695,6 +744,45 @@ async function openChat(id){
   document.getElementById('chatInput').focus();
 }
 
+// --- БЛОКНОТЫ ---
+function switchNoteTab(tab) {
+  activeNoteTab = tab;
+  document.getElementById('tabBtn1').classList.toggle('active', tab === 1);
+  document.getElementById('tabBtn2').classList.toggle('active', tab === 2);
+  document.getElementById('tabBtn3').classList.toggle('active', tab === 3);
+  document.getElementById('noteArea1').classList.toggle('hidden', tab !== 1);
+  document.getElementById('noteArea2').classList.toggle('hidden', tab !== 2);
+  document.getElementById('noteArea3').classList.toggle('hidden', tab !== 3);
+}
+
+async function openNotes() {
+  const n = await dbGet('notes', currentRoleId);
+  let parsed = {n1:'', n2:'', n3:''};
+  if(n && n.content) {
+    try {
+      parsed = JSON.parse(n.content);
+    } catch(e) {
+      // Если старый формат (просто текст), кидаем его в "Другое"
+      parsed.n3 = n.content;
+    }
+  }
+  currentNotes = parsed;
+  document.getElementById('noteArea1').value = parsed.n1 || '';
+  document.getElementById('noteArea2').value = parsed.n2 || '';
+  document.getElementById('noteArea3').value = parsed.n3 || '';
+  switchNoteTab(1);
+  document.getElementById('modalNotes').classList.remove('hidden');
+}
+
+async function saveAllNotes() {
+  currentNotes.n1 = document.getElementById('noteArea1').value;
+  currentNotes.n2 = document.getElementById('noteArea2').value;
+  currentNotes.n3 = document.getElementById('noteArea3').value;
+  await dbPut('notes', {roleId: currentRoleId, content: JSON.stringify(currentNotes)});
+  showAlert('Все блокноты сохранены!');
+}
+
+// --- ЧАТ ---
 async function loadMessages(id){
   const msgs=await dbByIndex('messages','roleId',id);const c=document.getElementById('chatMessages');c.innerHTML='';
   msgs.sort((a,b)=>a.timestamp-b.timestamp).forEach(m=>{
@@ -776,7 +864,6 @@ async function generateQuest(type, isRework = false) {
   const key = (r.model==='deepseek') ? settings.deepseek : settings.gemini;
   if(!key) { showAlert('Введите ключ в Настройках'); return; }
 
-  // Получаем последние 4 сообщения для контекста
   const msgs = await dbByIndex('messages','roleId',currentRoleId);
   const sorted = msgs.sort((a,b)=>a.timestamp-b.timestamp);
   const last4 = sorted.slice(-4);
@@ -895,13 +982,79 @@ async function generateBotReply(userDice = null){
     document.getElementById('waitMsg')?.remove();
     await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now(), diceRoll: botDice});
     await loadMessages(currentRoleId);
+    
+    // Тихое обновление блокнотов
+    updateNotesAuto(r, reply, last8);
+    
   }catch(e){
     document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message);
   }
 }
 
+// Автоматическое обновление блокнотов
+async function updateNotesAuto(role, botReply, contextMsgs) {
+  const key = (role.model==='deepseek') ? settings.deepseek : settings.gemini;
+  if(!key) return;
+  
+  const notesData = await dbGet('notes', currentRoleId);
+  let currentNotesObj = {n1:'', n2:'', n3:''};
+  if(notesData && notesData.content) {
+     try { currentNotesObj = JSON.parse(notesData.content); } catch(e) { currentNotesObj.n3 = notesData.content; }
+  }
+  
+  let contextText = "";
+  contextMsgs.forEach(m => { contextText += `${m.sender === 'user' ? 'Игрок' : 'Бот'}: ${m.text}\n`; });
+  contextText += `Бот: ${botReply}\n`;
+
+  const prompt = `Проанализируй последние сообщения в ролевой и обнови блокноты памяти. 
+Текущий блокнот "О персонаже (Боте)": ${currentNotesObj.n1}
+Текущий блокнот "О персонаже (Игрока)": ${currentNotesObj.n2}
+Текущий блокнот "Другое (Мир, события)": ${currentNotesObj.n3}
+
+Последние сообщения:
+${contextText}
+
+Верни ответ СТРОГО в формате JSON без лишнего текста, markdown-тегов (без \`\`\`json) и комментариев:
+{"n1": "обновленные факты о боте", "n2": "обновленные факты об игроке", "n3": "обновленные другие факты"}`;
+
+  const sys = `Ты — система памяти ИИ. Твоя задача читать текст и обновлять факты. Возвращай только валидный JSON.`;
+
+  try {
+    let reply = '';
+    if(role.model === 'deepseek') {
+       const res = await fetch('https://api.deepseek.com/chat/completions', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key}, body:JSON.stringify({model:'deepseek-flash', messages:[{role:'system', content:sys},{role:'user', content:prompt}], temperature:0.1})});
+       if(!res.ok) return;
+       const j = await res.json(); reply = j.choices[0].message.content.trim();
+    } else {
+       const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({system_instruction:{parts:[{text:sys}]}, contents:[{role:'user', parts:[{text:prompt}]}]})});
+       if(!res.ok) return;
+       const j = await res.json(); reply = j.candidates[0].content.parts[0].text.trim();
+    }
+    
+    // Очистка от markdown, если ИИ все равно их добавил
+    reply = reply.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    const parsed = JSON.parse(reply);
+    if(parsed.n1 !== undefined && parsed.n2 !== undefined && parsed.n3 !== undefined) {
+       await dbPut('notes', {roleId: currentRoleId, content: JSON.stringify(parsed)});
+    }
+  } catch(e) {
+    console.log("Не удалось авто-обновить блокноты (возможно, ИИ вернул не JSON):", e);
+  }
+}
+
 async function callAI(role, contextMsgs, extraInstruction, key){
-  const notes=await dbGet('notes',role.id); const mem=notes?notes.content:'';
+  const notesData=await dbGet('notes',role.id); 
+  let mem1 = '', mem2 = '', mem3 = '';
+  if(notesData && notesData.content) {
+    try {
+      const parsed = JSON.parse(notesData.content);
+      mem1 = parsed.n1 || ''; mem2 = parsed.n2 || ''; mem3 = parsed.n3 || '';
+    } catch(e) {
+      mem3 = notesData.content; // Совместимость со старым форматом
+    }
+  }
+  
   const gpData=await dbGet('notes','__global_prompt__'); const globalPrompt=gpData?gpData.content:'';
   
   let lengthRule = role.length ? `\nВАЖНОЕ ПРАВИЛО ДЛИНЫ: Пиши пост объемом примерно ${role.length} символов (отклонение не более 100 символов).` : '';
@@ -934,7 +1087,11 @@ async function callAI(role, contextMsgs, extraInstruction, key){
 Главный персонаж (твой, NPC): ${role.character||'не указан'}${secondaryRule}
 ${myCharRule}
 ${questsRule}
-Память (важное): ${mem||'пока пусто'}${lengthRule}
+--- ТВОИ БЛОКНОТЫ ПАМЯТИ ---
+О тебе (Боте): ${mem1||'пока пусто'}
+О персонаже игрока: ${mem2||'пока пусто'}
+Другое (события, мир): ${mem3||'пока пусто'}
+${lengthRule}
 ${extraInstruction ? `\nСПЕЦИАЛЬНАЯ ИНСТРУКЦИЯ: ${extraInstruction}` : ''}`;
 
   const formattedMsgs = contextMsgs.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text }));
@@ -950,9 +1107,51 @@ ${extraInstruction ? `\nСПЕЦИАЛЬНАЯ ИНСТРУКЦИЯ: ${extraInst
   }
 }
 
-function toggleNotes(){document.getElementById('notesPanel').classList.toggle('hidden')}
-async function loadNotes(id){const n=await dbGet('notes',id);document.getElementById('notesContent').value=n?n.content:''}
-async function saveNotes(){if(!currentRoleId)return;await dbPut('notes',{roleId:currentRoleId,content:document.getElementById('notesContent').value});showAlert('Сохранено')}
+// Делаем функции глобальными, чтобы работали обработчики кликов
+window.toggleChatMenu = toggleChatMenu;
+window.openQuests = openQuests;
+window.openNotes = openNotes;
+window.editCurrentRole = editCurrentRole;
+window.switchNoteTab = switchNoteTab;
+window.saveAllNotes = saveAllNotes;
+window.generateQuest = generateQuest;
+window.deleteQuest = deleteQuest;
+window.reworkQuest = reworkQuest;
+window.closeQuests = closeQuests;
+window.openRoleForm = openRoleForm;
+window.openCharGallery = openCharGallery;
+window.openFolderForm = openFolderForm;
+window.openSettings = openSettings;
+window.backToCatalog = backToCatalog;
+window.toggleFavorite = toggleFavorite;
+window.editChar = editChar;
+window.openCharDeleteModal = openCharDeleteModal;
+window.openCharForm = openCharForm;
+window.saveCharacter = saveCharacter;
+window.saveRole = saveRole;
+window.saveFolder = saveFolder;
+window.backToCharGallery = backToCharGallery;
+window.backFromRoleForm = backFromRoleForm;
+window.pickModel = pickModel;
+window.openFolderSelect = openFolderSelect;
+window.openCharSelect = openCharSelect;
+window.editUserMessage = editUserMessage;
+window.saveEditedMessage = saveEditedMessage;
+window.closeEditModal = closeEditModal;
+window.openReworkModal = openReworkModal;
+window.doRework = doRework;
+window.closeModal = closeModal;
+window.confirmDeleteRole = confirmDeleteRole;
+window.closeLongPress = closeLongPress;
+window.editFromLongPress = editFromLongPress;
+window.showDeleteConfirm = showDeleteConfirm;
+window.confirmDeleteChar = confirmDeleteChar;
+window.closeAlert = closeAlert;
+window.saveSettings = saveSettings;
+window.resetColors = resetColors;
+window.sendMessage = sendMessage;
+window.toggleDice = toggleDice;
+window.openChat = openChat;
 
 initDB().then(async()=>{
   const c=await dbGet('notes','__colors__'); if(c&&c.colors)colors={...defaultColors,...c.colors}; applyColors();
