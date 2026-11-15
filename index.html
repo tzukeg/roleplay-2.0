@@ -55,8 +55,9 @@ input,textarea,select,button{font-family:inherit}
 
 .chat-input-row{display:flex;gap:8px;align-items:flex-end}
 .chat-input{flex:1;padding:14px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--input-text);font-size:16px;resize:none;outline:none;min-height:52px;max-height:120px}
-.btn-dice{background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer;}
+.btn-dice, .btn-juicy{background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer;}
 .btn-dice.active{background:var(--accent); color:#000; border-color:var(--accent);}
+.btn-juicy:active{background:var(--accent); color:#000;}
 
 .hidden{display:none!important}
 .form-group{margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
@@ -114,8 +115,8 @@ input,textarea,select,button{font-family:inherit}
 .tabs button{flex:1; padding:10px 4px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text); font-size:12px; font-weight:600; cursor:pointer;}
 .tabs button.active{background:var(--btn-bg); color:var(--btn-text); border-color:var(--btn-bg);}
 
-.rel-labels{display:flex; justify-content:space-between; font-size:18px; margin-bottom:8px; padding:0 4px;}
-.rel-track{height:14px; border-radius:7px; background:linear-gradient(to right, #cf6679, #ffd54f, #81c784, #4fc3f7, #f06292); position:relative; overflow:hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);}
+.rel-labels{display:flex; justify-content:space-between; font-size:16px; margin-bottom:8px; padding:0 4px;}
+.rel-track{height:14px; border-radius:7px; background:linear-gradient(to right, #cf6679, #e57373, #ffd54f, #fff59d, #81c784, #4fc3f7, #f06292); position:relative; overflow:hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);}
 .rel-marker{position:absolute; top:-2px; bottom:-2px; width:6px; background:white; border-radius:3px; box-shadow:0 0 6px rgba(0,0,0,0.8); transition:left 0.5s ease;}
 .rel-text{text-align:center; font-size:14px; color:var(--text); margin-top:12px; font-weight:600; font-style:italic;}
 .rel-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:transparent;display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
@@ -240,6 +241,7 @@ input,textarea,select,button{font-family:inherit}
 
   <div class="chat-input-row" style="padding:0 16px 16px 16px; position:relative;">
     <button class="btn-dice" id="btnDice" onclick="toggleDice()">🎲</button>
+    <button class="btn-juicy" id="btnJuicy" onclick="makeJuicy()">🍷</button>
     <textarea class="chat-input" id="chatInput" placeholder="Ваше сообщение..." rows="1"></textarea>
     <button class="btn" onclick="sendMessage()">➤</button>
   </div>
@@ -298,7 +300,7 @@ input,textarea,select,button{font-family:inherit}
   <div class="rel-content">
     <h3 style="text-align:center; margin-bottom:16px;">📊 Шкала отношений</h3>
     <div class="rel-labels">
-      <span>🤬</span><span>😐</span><span>😄</span><span>😊</span><span>😍</span>
+      <span>🤬</span><span>😬</span><span>😒</span><span>😐</span><span>😄</span><span>😊</span><span>😍</span>
     </div>
     <div class="rel-track">
       <div class="rel-marker" id="relMarker" style="left: 50%;"></div>
@@ -762,6 +764,7 @@ async function openChat(id){
   if(!r) return;
   document.getElementById('chatTitle').textContent=r.name;
   currentRelVal = r.relationship !== undefined ? r.relationship : 50;
+  updateRelText(currentRelVal);
   showScreen('screen-chat'); await loadMessages(id); await loadNotes(id);
   document.getElementById('chatInput').focus();
 }
@@ -778,6 +781,18 @@ function updateRelMarker(val, descText) {
   if(!marker || !text) return;
   marker.style.left = `${val}%`;
   if(descText) text.textContent = descText;
+  else updateRelText(val);
+}
+
+function updateRelText(val) {
+  const text = document.getElementById('relText');
+  if(val <= 14) text.textContent = 'Ненависть и отвращение';
+  else if(val <= 28) text.textContent = 'Неприязнь';
+  else if(val <= 42) text.textContent = 'Равнодушие, холод';
+  else if(val <= 57) text.textContent = 'Нейтрально';
+  else if(val <= 71) text.textContent = 'Дружески и тепло';
+  else if(val <= 85) text.textContent = 'Симпатия, влечение';
+  else text.textContent = 'Влюбленность, страсть';
 }
 
 async function updateRelationshipAuto(botReply) {
@@ -792,8 +807,9 @@ async function updateRelationshipAuto(botReply) {
 Текст бота: "${botReply}"
 
 Верни ответ СТРОГО в формате JSON без markdown:
-{"change": <число от -5 до +5>, "desc": "<краткое описание отношений в 2-3 словах>"}`;
-  
+{"change": <число от -5 до +5>, "desc": "<краткое описание отношений в 2-3 словах>"}
+ПРАВИЛО: Если в тексте не было реального конфликта, флирта или сильных эмоций, верни change: 0.`;
+
   const sys = `Ты — анализатор отношений. Отвечай только валидным JSON.`;
 
   try {
@@ -811,7 +827,7 @@ async function updateRelationshipAuto(botReply) {
     reply = reply.replace(/```json/g, '').replace(/```/g, '').trim();
     const parsed = JSON.parse(reply);
     
-    if(parsed.change !== undefined) {
+    if(parsed.change !== undefined && parsed.change !== 0) {
        currVal += parsed.change;
        if(currVal > 100) currVal = 100;
        if(currVal < 0) currVal = 0;
@@ -819,6 +835,7 @@ async function updateRelationshipAuto(botReply) {
        r.relationship = currVal;
        await dbPut('roles', r);
        currentRelVal = currVal;
+       updateRelText(currVal);
        
        if(!document.getElementById('modalRelationship').classList.contains('hidden')) {
           updateRelMarker(currVal, parsed.desc);
@@ -860,55 +877,6 @@ async function saveAllNotes() {
   currentNotes.n3 = document.getElementById('noteArea3').value;
   await dbPut('notes', {roleId: currentRoleId, content: JSON.stringify(currentNotes)});
   showAlert('Все блокноты сохранены!');
-}
-
-async function updateNotesAuto(role, botReply, contextMsgs) {
-  const key = (role.model==='deepseek') ? settings.deepseek : settings.gemini;
-  if(!key) return;
-  
-  const notesData = await dbGet('notes', currentRoleId);
-  let currentNotesObj = {n1:'', n2:'', n3:''};
-  if(notesData && notesData.content) {
-     try { currentNotesObj = JSON.parse(notesData.content); } catch(e) { currentNotesObj.n3 = notesData.content; }
-  }
-  
-  let contextText = "";
-  contextMsgs.forEach(m => { contextText += `${m.sender === 'user' ? 'Игрок' : 'Бот'}: ${m.text}\n`; });
-  contextText += `Бот: ${botReply}\n`;
-
-  const prompt = `Проанализируй последние сообщения и обнови блокноты памяти. 
-Текущий "О персонаже (Боте)": ${currentNotesObj.n1}
-Текущий "О персонаже (Игрока)": ${currentNotesObj.n2}
-Текущий "Другое (Мир, события)": ${currentNotesObj.n3}
-
-Последние сообщения:
-${contextText}
-
-Верни ответ СТРОГО в формате JSON без лишнего текста и markdown-тегов:
-{"n1": "обновленные факты о боте", "n2": "обновленные факты об игроке", "n3": "обновленные другие факты"}`;
-
-  const sys = `Ты — система памяти ИИ. Твоя задача читать текст и обновлять факты. Возвращай только валидный JSON.`;
-
-  try {
-    let reply = '';
-    if(role.model === 'deepseek') {
-       const res = await fetch('https://api.deepseek.com/chat/completions', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key}, body:JSON.stringify({model:'deepseek-flash', messages:[{role:'system', content:sys},{role:'user', content:prompt}], temperature:0.1})});
-       if(!res.ok) return;
-       const j = await res.json(); reply = j.choices[0].message.content.trim();
-    } else {
-       const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({system_instruction:{parts:[{text:sys}]}, contents:[{role:'user', parts:[{text:prompt}]}]})});
-       if(!res.ok) return;
-       const j = await res.json(); reply = j.candidates[0].content.parts[0].text.trim();
-    }
-    
-    reply = reply.replace(/```json/g, '').replace(/```/g, '').trim();
-    const parsed = JSON.parse(reply);
-    if(parsed.n1 !== undefined && parsed.n2 !== undefined && parsed.n3 !== undefined) {
-       await dbPut('notes', {roleId: currentRoleId, content: JSON.stringify(parsed)});
-    }
-  } catch(e) {
-    console.log("Не удалось авто-обновить блокноты:", e);
-  }
 }
 
 // --- ЧАТ ---
@@ -1077,6 +1045,31 @@ async function doRework(type, instruction){
   } catch(e) { document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message); }
 }
 
+async function makeJuicy() {
+  const r = allRoles.find(x=>x.id===currentRoleId); if(!r) return;
+  const key = (r.model==='deepseek') ? settings.deepseek : settings.gemini; if(!key) return showAlert('Введите ключ в Настройках (⚙)');
+  
+  const msgs = await dbByIndex('messages','roleId',currentRoleId);
+  const sorted = msgs.sort((a,b)=>a.timestamp-b.timestamp);
+  const lastBotMsg = sorted.filter(m => m.sender === 'bot').pop();
+  if(!lastBotMsg) return showAlert('Нет постов бота для переделки.');
+  
+  const targetIdx = sorted.findIndex(m => m.id === lastBotMsg.id);
+  await dbDel('messages', lastBotMsg.id); await loadMessages(currentRoleId);
+  const startIdx = Math.max(0, targetIdx - 6); const contextMsgs = sorted.slice(startIdx, targetIdx);
+
+  const c = document.getElementById('chatMessages');
+  const wait = document.createElement('div'); wait.className='msg bot'; wait.textContent='🍷 Добавляю сочности...'; wait.id='waitMsg'; c.appendChild(wait); c.scrollTop=c.scrollHeight;
+  
+  try {
+    const reply = await callAI(r, contextMsgs, `ПЕРЕПИШИ СВОЙ ПРЕДЫДУЩИЙ ОТВЕТ. Старый текст: "${lastBotMsg.text}". Сделай его более литературным, добавь сенсорных деталей (запахи, звуки, тактильные ощущения), опиши микромимику и внутренние эмоции персонажа.`, key);
+    if(!reply || reply.trim() === '') throw new Error("Пустой ответ от ИИ");
+    document.getElementById('waitMsg')?.remove();
+    await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now()});
+    await loadMessages(currentRoleId);
+  } catch(e) { document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message); }
+}
+
 async function sendMessage(){
   const inp=document.getElementById('chatInput');const text=inp.value.trim();if(!text||!currentRoleId)return;
   let userDice = null;
@@ -1110,7 +1103,6 @@ async function generateBotReply(userDice = null){
 
     let reply = await callAI(r, last6, diceInstruction, key); 
     
-    // ПРОВЕРКА НА ПУСТОТУ
     if(!reply || reply.trim() === '') {
       throw new Error("ИИ вернул пустой ответ. Попробуйте отправить сообщение еще раз.");
     }
@@ -1119,7 +1111,6 @@ async function generateBotReply(userDice = null){
     await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now(), diceRoll: botDice});
     await loadMessages(currentRoleId);
     
-    updateNotesAuto(r, reply, last6);
     updateRelationshipAuto(reply);
     
   }catch(e){
@@ -1130,12 +1121,16 @@ async function generateBotReply(userDice = null){
 async function callAI(role, contextMsgs, extraInstruction, key){
   const notesData=await dbGet('notes',role.id); 
   let mem1 = '', mem2 = '', mem3 = '';
+  let hasNotes = false;
+  
   if(notesData && notesData.content) {
     try {
       const parsed = JSON.parse(notesData.content);
       mem1 = parsed.n1 || ''; mem2 = parsed.n2 || ''; mem3 = parsed.n3 || '';
+      if(mem1.trim() || mem2.trim() || mem3.trim()) hasNotes = true;
     } catch(e) {
       mem3 = notesData.content;
+      if(mem3.trim()) hasNotes = true;
     }
   }
   
@@ -1163,6 +1158,14 @@ async function callAI(role, contextMsgs, extraInstruction, key){
     activeRole.quests.forEach((q, i) => { questsRule += `${i+1}. ${q}\n`; });
   }
 
+  let notesRule = '';
+  if(hasNotes) {
+     notesRule = `\n--- ТВОИ БЛОКНОТЫ ПАМЯТИ ---
+О тебе (Боте): ${mem1||'пусто'}
+О персонаже игрока: ${mem2||'пусто'}
+Другое (события, мир): ${mem3||'пусто'}`;
+  }
+
   const sys = `${globalPrompt}
 --- ДАННЫЕ РОЛЕВОЙ ---
 Вселенная: ${role.world||'не указана'}
@@ -1171,12 +1174,10 @@ async function callAI(role, contextMsgs, extraInstruction, key){
 Главный персонаж (твой, NPC): ${role.character||'не указан'}${secondaryRule}
 ${myCharRule}
 ${questsRule}
---- ТВОИ БЛОКНОТЫ ПАМЯТИ ---
-О тебе (Боте): ${mem1||'пока пусто'}
-О персонаже игрока: ${mem2||'пока пусто'}
-Другое (события, мир): ${mem3||'пока пусто'}
+${notesRule}
 ${lengthRule}
-${extraInstruction ? `\nСПЕЦИАЛЬНАЯ ИНСТРУКЦИЯ: ${extraInstruction}` : ''}`;
+${extraInstruction ? `\nСПЕЦИАЛЬНАЯ ИНСТРУКЦИЯ: ${extraInstruction}` : ''}
+Пиши литературно, добавляй детали.`;
 
   const formattedMsgs = contextMsgs.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text }));
 
@@ -1229,6 +1230,7 @@ window.closeEditModal = closeEditModal;
 window.openReworkModal = openReworkModal;
 window.doRework = doRework;
 window.closeModal = closeModal;
+window.makeJuicy = makeJuicy;
 window.confirmDeleteRole = confirmDeleteRole;
 window.closeLongPress = closeLongPress;
 window.editFromLongPress = editFromLongPress;
@@ -1249,4 +1251,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-    </html>
+</html>
