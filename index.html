@@ -35,7 +35,6 @@ input,textarea,select,button{font-family:inherit}
 .header-bar h1{flex:1;font-size:24px; letter-spacing: 1px;}
 .header-bar h2{flex:1;font-size:20px}
 
-/* Выпадающее меню ролевой */
 .chat-header {position:relative; display:flex; align-items:center; padding:16px 16px 0 16px; margin-bottom:16px; gap:12px;}
 .chat-dropdown {position:absolute; top:60px; right:16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,0.8); display:flex; flex-direction:column; gap:8px; padding:12px; z-index:100; transform-origin: top right; transition: all 0.2s ease;}
 .chat-dropdown.hidden {transform: scale(0.9); opacity:0; pointer-events:none;}
@@ -111,18 +110,14 @@ input,textarea,select,button{font-family:inherit}
 .quest-actions{display:flex; gap:8px;}
 .quest-actions button{background:none; border:none; color:var(--text); cursor:pointer; font-size:16px;}
 
-/* Вкладки блокнота */
 .tabs{display:flex; gap:6px; margin-bottom:10px;}
 .tabs button{flex:1; padding:10px 4px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text); font-size:12px; font-weight:600; cursor:pointer;}
 .tabs button.active{background:var(--btn-bg); color:var(--btn-text); border-color:var(--btn-bg);}
 
-/* Шкала отношений */
 .rel-labels{display:flex; justify-content:space-between; font-size:18px; margin-bottom:8px; padding:0 4px;}
 .rel-track{height:14px; border-radius:7px; background:linear-gradient(to right, #cf6679, #ffd54f, #81c784, #4fc3f7, #f06292); position:relative; overflow:hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);}
 .rel-marker{position:absolute; top:-2px; bottom:-2px; width:6px; background:white; border-radius:3px; box-shadow:0 0 6px rgba(0,0,0,0.8); transition:left 0.5s ease;}
 .rel-text{text-align:center; font-size:14px; color:var(--text); margin-top:12px; font-weight:600; font-style:italic;}
-
-/* Окно отношений без замутнения */
 .rel-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:transparent;display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
 .rel-content {background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:320px;display:flex;flex-direction:column;border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,0.9);}
 </style>
@@ -299,11 +294,9 @@ input,textarea,select,button{font-family:inherit}
   <button class="btn" onclick="saveFolder()">Сохранить</button>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО: ШКАЛА ОТНОШЕНИЙ (без замутнения) -->
 <div id="modalRelationship" class="rel-overlay hidden">
   <div class="rel-content">
     <h3 style="text-align:center; margin-bottom:16px;">📊 Шкала отношений</h3>
-    
     <div class="rel-labels">
       <span>🤬</span><span>😐</span><span>😄</span><span>😊</span><span>😍</span>
     </div>
@@ -311,26 +304,21 @@ input,textarea,select,button{font-family:inherit}
       <div class="rel-marker" id="relMarker" style="left: 50%;"></div>
     </div>
     <div class="rel-text" id="relText">Нейтрально</div>
-
     <button class="btn btn-secondary" style="margin-top:20px;" onclick="document.getElementById('modalRelationship').classList.add('hidden')">Закрыть</button>
   </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО: БЛОКНОТЫ -->
 <div id="modalNotes" class="modal-overlay hidden">
   <div class="modal-content" style="max-width: 500px;">
     <h3>📝 Блокноты</h3>
-    
     <div class="tabs">
       <button id="tabBtn1" onclick="switchNoteTab(1)" class="active">О персонаже</button>
       <button id="tabBtn2" onclick="switchNoteTab(2)">О вашем</button>
       <button id="tabBtn3" onclick="switchNoteTab(3)">Другое</button>
     </div>
-
     <textarea id="noteArea1" placeholder="Факты о персонаже бота..."></textarea>
     <textarea id="noteArea2" class="hidden" placeholder="Факты о вашем персонаже..."></textarea>
     <textarea id="noteArea3" class="hidden" placeholder="События, мир, важные детали..."></textarea>
-
     <div style="display:flex; gap:10px; margin-top:10px;">
       <button class="btn" style="flex:1;" onclick="saveAllNotes()">Сохранить всё</button>
       <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('modalNotes').classList.add('hidden')">Закрыть</button>
@@ -338,7 +326,6 @@ input,textarea,select,button{font-family:inherit}
   </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО: КВЕСТЫ -->
 <div id="modalQuests" class="modal-overlay hidden">
   <div class="modal-content">
     <h3>🚩 Сюжетные повороты</h3>
@@ -706,27 +693,33 @@ async function openCharSelect() {
   document.getElementById('modalCharSelect').classList.remove('hidden');
 }
 function pickModel(m){ editingModel=m; document.getElementById('btnGemini').classList.toggle('selected',m==='gemini'); document.getElementById('btnDeepseek').classList.toggle('selected',m==='deepseek'); }
+
 async function saveRole(){
   const data={
     name:document.getElementById('rfName').value.trim(), folder: currentFolderVal, model:editingModel,
     myCharId: currentCharVal, length:document.getElementById('rfLength').value, world:document.getElementById('rfWorld').value, plot:document.getElementById('rfPlot').value,
-    details:document.getElementById('rfDetails').value, character:document.getElementById('rfChar').value, secondary:document.getElementById('rfSecondary').value,
-    relationship: currentRelVal // Сохраняем отношения
+    details:document.getElementById('rfDetails').value, character:document.getElementById('rfChar').value, secondary:document.getElementById('rfSecondary').value
   };
   if(!data.name){ showAlert('Введите название!'); return; }
   
   if(editingRoleId){
     data.id=editingRoleId;
     const oldRole = await dbGet('roles', editingRoleId);
-    if(oldRole && oldRole.isFavorite) data.isFavorite = true;
-    if(oldRole && oldRole.relationship !== undefined) data.relationship = oldRole.relationship; // Сохраняем старые отношения при редактировании
+    if(oldRole) {
+       if(oldRole.isFavorite) data.isFavorite = true;
+       if(oldRole.relationship !== undefined) data.relationship = oldRole.relationship;
+       if(oldRole.quests) data.quests = oldRole.quests;
+    }
     await dbPut('roles',data);
   } else {
     data.createdAt=Date.now(); data.isFavorite = false;
-    data.relationship = 50; // По умолчанию нейтрально
+    data.relationship = 50;
     await dbAdd('roles',data);
   }
   
+  // Обновляем массив в оперативной памяти, чтобы бот сразу увидел новые настройки
+  allRoles = await dbAll('roles');
+
   if (isEditingRoleFromChat) {
     openChat(editingRoleId);
     isEditingRoleFromChat = false;
@@ -828,7 +821,6 @@ async function updateRelationshipAuto(botReply) {
        await dbPut('roles', r);
        currentRelVal = currVal;
        
-       // Обновляем окошко, если оно открыто
        if(!document.getElementById('modalRelationship').classList.contains('hidden')) {
           updateRelMarker(currVal, parsed.desc);
        }
@@ -1075,7 +1067,7 @@ async function doRework(type, instruction){
   const targetIdx = sorted.findIndex(m => m.id === reworkMessageId);
   const oldBotMsg = sorted[targetIdx];
   await dbDel('messages', reworkMessageId); await loadMessages(currentRoleId);
-  const startIdx = Math.max(0, targetIdx - 8); const contextMsgs = sorted.slice(startIdx, targetIdx);
+  const startIdx = Math.max(0, targetIdx - 6); const contextMsgs = sorted.slice(startIdx, targetIdx);
   const c=document.getElementById('chatMessages');const wait=document.createElement('div');wait.className='msg bot';wait.textContent='…';wait.id='waitMsg';c.appendChild(wait);c.scrollTop=c.scrollHeight;
   try {
     const reply = await callAI(r, contextMsgs, `ПЕРЕДЕЛАЙ СВОЙ ПРЕДЫДУЩИЙ ОТВЕТ. Старый текст: "${oldBotMsg.text}". Инструкция: ${instruction}`, key);
@@ -1105,7 +1097,7 @@ async function generateBotReply(userDice = null){
   try{
     const msgs = await dbByIndex('messages','roleId',currentRoleId);
     const sorted = msgs.sort((a,b)=>a.timestamp-b.timestamp);
-    const last8 = sorted.slice(-8);
+    const last6 = sorted.slice(-6); // <-- ИЗМЕНЕНО НА 6
     
     let diceInstruction = '';
     let botDice = null;
@@ -1116,13 +1108,13 @@ async function generateBotReply(userDice = null){
        else diceInstruction = `\n[СИСТЕМА КУБИКА]: Ничья. Опиши неопределенный исход.`;
     }
 
-    let reply = await callAI(r, last8, diceInstruction, key);
+    let reply = await callAI(r, last6, diceInstruction, key); // <-- ПЕРЕДАЕМ 6
     document.getElementById('waitMsg')?.remove();
     await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now(), diceRoll: botDice});
     await loadMessages(currentRoleId);
     
     // Тихое обновление памяти и отношений
-    updateNotesAuto(r, reply, last8);
+    updateNotesAuto(r, reply, last6);
     updateRelationshipAuto(reply);
     
   }catch(e){
@@ -1194,7 +1186,6 @@ ${extraInstruction ? `\nСПЕЦИАЛЬНАЯ ИНСТРУКЦИЯ: ${extraInst
   }
 }
 
-// Делаем функции глобальными, чтобы работали обработчики кликов
 window.toggleChatMenu = toggleChatMenu;
 window.openQuests = openQuests;
 window.openNotes = openNotes;
@@ -1249,4 +1240,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-  </html>
+                                                                   </html>
