@@ -39,7 +39,7 @@ input,textarea,select,button{font-family:inherit}
 .chat-header {position:relative; display:flex; align-items:center; padding:16px 16px 0 16px; margin-bottom:16px; gap:12px;}
 .chat-dropdown {position:absolute; top:60px; right:16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,0.8); display:flex; flex-direction:column; gap:8px; padding:12px; z-index:100; transform-origin: top right; transition: all 0.2s ease;}
 .chat-dropdown.hidden {transform: scale(0.9); opacity:0; pointer-events:none;}
-.chat-dropdown button {background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:10px 16px; border-radius:12px; font-size:15px; display:flex; align-items:center; gap:8px; cursor:pointer;}
+.chat-dropdown button {background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:10px 16px; border-radius:12px; font-size:15px; display:flex; align-items:center; gap:8px; cursor:pointer; text-align:left;}
 .chat-dropdown button:active {background:var(--btn-bg); color:var(--btn-text);}
 
 .chat-messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:12px;padding:4px}
@@ -115,6 +115,16 @@ input,textarea,select,button{font-family:inherit}
 .tabs{display:flex; gap:6px; margin-bottom:10px;}
 .tabs button{flex:1; padding:10px 4px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text); font-size:12px; font-weight:600; cursor:pointer;}
 .tabs button.active{background:var(--btn-bg); color:var(--btn-text); border-color:var(--btn-bg);}
+
+/* Шкала отношений */
+.rel-labels{display:flex; justify-content:space-between; font-size:18px; margin-bottom:8px; padding:0 4px;}
+.rel-track{height:14px; border-radius:7px; background:linear-gradient(to right, #cf6679, #ffd54f, #81c784, #4fc3f7, #f06292); position:relative; overflow:hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);}
+.rel-marker{position:absolute; top:-2px; bottom:-2px; width:6px; background:white; border-radius:3px; box-shadow:0 0 6px rgba(0,0,0,0.8); transition:left 0.5s ease;}
+.rel-text{text-align:center; font-size:14px; color:var(--text); margin-top:12px; font-weight:600; font-style:italic;}
+
+/* Окно отношений без замутнения */
+.rel-overlay {position:fixed;top:0;left:0;right:0;bottom:0;background:transparent;display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.rel-content {background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:320px;display:flex;flex-direction:column;border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,0.9);}
 </style>
 </head>
 <body>
@@ -218,7 +228,6 @@ input,textarea,select,button{font-family:inherit}
 </div>
 
 <div id="screen-chat" class="screen" style="padding:0;">
-  <!-- Шапка чата с выпадающим меню -->
   <div class="chat-header">
     <button class="btn btn-secondary btn-small" onclick="backToCatalog()">← Назад</button>
     <h2 id="chatTitle" style="flex:1;">Ролевая</h2>
@@ -227,6 +236,7 @@ input,textarea,select,button{font-family:inherit}
     <div id="chatDropdownMenu" class="chat-dropdown hidden">
       <button onclick="openQuests(); toggleChatMenu(event)">🚩 Сюжетные повороты</button>
       <button onclick="openNotes(); toggleChatMenu(event)">📝 Блокноты</button>
+      <button onclick="openRelationship(); toggleChatMenu(event)">📊 Шкала отношений</button>
       <button onclick="editCurrentRole(); toggleChatMenu(event)">✎ Редактировать</button>
     </div>
   </div>
@@ -287,6 +297,23 @@ input,textarea,select,button{font-family:inherit}
   <div class="form-group"><label>Название папки</label><input id="ffName" placeholder="Фэнтези, Sci-Fi..."></div>
   <div class="form-group"><label>Цвет</label><input id="ffColor" type="color" value="#bb86fc" style="height:52px;padding:4px;"></div>
   <button class="btn" onclick="saveFolder()">Сохранить</button>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО: ШКАЛА ОТНОШЕНИЙ (без замутнения) -->
+<div id="modalRelationship" class="rel-overlay hidden">
+  <div class="rel-content">
+    <h3 style="text-align:center; margin-bottom:16px;">📊 Шкала отношений</h3>
+    
+    <div class="rel-labels">
+      <span>🤬</span><span>😐</span><span>😄</span><span>😊</span><span>😍</span>
+    </div>
+    <div class="rel-track">
+      <div class="rel-marker" id="relMarker" style="left: 50%;"></div>
+    </div>
+    <div class="rel-text" id="relText">Нейтрально</div>
+
+    <button class="btn btn-secondary" style="margin-top:20px;" onclick="document.getElementById('modalRelationship').classList.add('hidden')">Закрыть</button>
+  </div>
 </div>
 
 <!-- МОДАЛЬНОЕ ОКНО: БЛОКНОТЫ -->
@@ -433,6 +460,7 @@ let editingCharIdForDelete=null;
 let isEditingRoleFromChat = false; 
 let activeNoteTab = 1;
 let currentNotes = {n1:'', n2:'', n3:''};
+let currentRelVal = 50;
 
 function showAlert(msg) { document.getElementById('alertText').textContent = msg; document.getElementById('modalAlert').classList.remove('hidden'); }
 function closeAlert() { document.getElementById('modalAlert').classList.add('hidden'); }
@@ -466,7 +494,6 @@ function toggleChatMenu(e) {
   menu.classList.toggle('hidden');
 }
 
-// Закрытие меню по клику вне его
 document.addEventListener('click', function(event) {
   const menu = document.getElementById('chatDropdownMenu');
   const btn = document.querySelector('.chat-header button[onclick*="toggleChatMenu"]');
@@ -683,7 +710,8 @@ async function saveRole(){
   const data={
     name:document.getElementById('rfName').value.trim(), folder: currentFolderVal, model:editingModel,
     myCharId: currentCharVal, length:document.getElementById('rfLength').value, world:document.getElementById('rfWorld').value, plot:document.getElementById('rfPlot').value,
-    details:document.getElementById('rfDetails').value, character:document.getElementById('rfChar').value, secondary:document.getElementById('rfSecondary').value
+    details:document.getElementById('rfDetails').value, character:document.getElementById('rfChar').value, secondary:document.getElementById('rfSecondary').value,
+    relationship: currentRelVal // Сохраняем отношения
   };
   if(!data.name){ showAlert('Введите название!'); return; }
   
@@ -691,10 +719,11 @@ async function saveRole(){
     data.id=editingRoleId;
     const oldRole = await dbGet('roles', editingRoleId);
     if(oldRole && oldRole.isFavorite) data.isFavorite = true;
-    if(oldRole && oldRole.relationship) data.relationship = oldRole.relationship;
+    if(oldRole && oldRole.relationship !== undefined) data.relationship = oldRole.relationship; // Сохраняем старые отношения при редактировании
     await dbPut('roles',data);
   } else {
     data.createdAt=Date.now(); data.isFavorite = false;
+    data.relationship = 50; // По умолчанию нейтрально
     await dbAdd('roles',data);
   }
   
@@ -740,8 +769,73 @@ async function openChat(id){
   currentRoleId=id; const r=allRoles.find(x=>x.id===id);
   if(!r) return;
   document.getElementById('chatTitle').textContent=r.name;
+  currentRelVal = r.relationship !== undefined ? r.relationship : 50;
   showScreen('screen-chat'); await loadMessages(id); await loadNotes(id);
   document.getElementById('chatInput').focus();
+}
+
+// --- ШКАЛА ОТНОШЕНИЙ ---
+function openRelationship() {
+  updateRelMarker(currentRelVal, document.getElementById('relText').textContent);
+  document.getElementById('modalRelationship').classList.remove('hidden');
+}
+
+function updateRelMarker(val, descText) {
+  const marker = document.getElementById('relMarker');
+  const text = document.getElementById('relText');
+  if(!marker || !text) return;
+  marker.style.left = `${val}%`;
+  if(descText) text.textContent = descText;
+}
+
+async function updateRelationshipAuto(botReply) {
+  const r = await dbGet('roles', currentRoleId);
+  if(!r) return;
+  const key = (r.model==='deepseek') ? settings.deepseek : settings.gemini;
+  if(!key) return;
+
+  let currVal = r.relationship !== undefined ? r.relationship : 50;
+  
+  const prompt = `Оцени, как этот ответ бота повлиял на отношение главного персонажа к игроку.
+Текст бота: "${botReply}"
+
+Верни ответ СТРОГО в формате JSON без markdown:
+{"change": <число от -5 до +5>, "desc": "<краткое описание отношений в 2-3 словах>"}`;
+  
+  const sys = `Ты — анализатор отношений. Отвечай только валидным JSON.`;
+
+  try {
+    let reply = '';
+    if(r.model === 'deepseek') {
+       const res = await fetch('https://api.deepseek.com/chat/completions', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key}, body:JSON.stringify({model:'deepseek-flash', messages:[{role:'system', content:sys},{role:'user', content:prompt}], temperature:0.1})});
+       if(!res.ok) return;
+       const j = await res.json(); reply = j.choices[0].message.content.trim();
+    } else {
+       const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({system_instruction:{parts:[{text:sys}]}, contents:[{role:'user', parts:[{text:prompt}]}]})});
+       if(!res.ok) return;
+       const j = await res.json(); reply = j.candidates[0].content.parts[0].text.trim();
+    }
+    
+    reply = reply.replace(/```json/g, '').replace(/```/g, '').trim();
+    const parsed = JSON.parse(reply);
+    
+    if(parsed.change !== undefined) {
+       currVal += parsed.change;
+       if(currVal > 100) currVal = 100;
+       if(currVal < 0) currVal = 0;
+       
+       r.relationship = currVal;
+       await dbPut('roles', r);
+       currentRelVal = currVal;
+       
+       // Обновляем окошко, если оно открыто
+       if(!document.getElementById('modalRelationship').classList.contains('hidden')) {
+          updateRelMarker(currVal, parsed.desc);
+       }
+    }
+  } catch(e) {
+    console.log("Ошибка авто-отношений:", e);
+  }
 }
 
 // --- БЛОКНОТЫ ---
@@ -759,12 +853,7 @@ async function openNotes() {
   const n = await dbGet('notes', currentRoleId);
   let parsed = {n1:'', n2:'', n3:''};
   if(n && n.content) {
-    try {
-      parsed = JSON.parse(n.content);
-    } catch(e) {
-      // Если старый формат (просто текст), кидаем его в "Другое"
-      parsed.n3 = n.content;
-    }
+    try { parsed = JSON.parse(n.content); } catch(e) { parsed.n3 = n.content; }
   }
   currentNotes = parsed;
   document.getElementById('noteArea1').value = parsed.n1 || '';
@@ -780,6 +869,55 @@ async function saveAllNotes() {
   currentNotes.n3 = document.getElementById('noteArea3').value;
   await dbPut('notes', {roleId: currentRoleId, content: JSON.stringify(currentNotes)});
   showAlert('Все блокноты сохранены!');
+}
+
+async function updateNotesAuto(role, botReply, contextMsgs) {
+  const key = (role.model==='deepseek') ? settings.deepseek : settings.gemini;
+  if(!key) return;
+  
+  const notesData = await dbGet('notes', currentRoleId);
+  let currentNotesObj = {n1:'', n2:'', n3:''};
+  if(notesData && notesData.content) {
+     try { currentNotesObj = JSON.parse(notesData.content); } catch(e) { currentNotesObj.n3 = notesData.content; }
+  }
+  
+  let contextText = "";
+  contextMsgs.forEach(m => { contextText += `${m.sender === 'user' ? 'Игрок' : 'Бот'}: ${m.text}\n`; });
+  contextText += `Бот: ${botReply}\n`;
+
+  const prompt = `Проанализируй последние сообщения и обнови блокноты памяти. 
+Текущий "О персонаже (Боте)": ${currentNotesObj.n1}
+Текущий "О персонаже (Игрока)": ${currentNotesObj.n2}
+Текущий "Другое (Мир, события)": ${currentNotesObj.n3}
+
+Последние сообщения:
+${contextText}
+
+Верни ответ СТРОГО в формате JSON без лишнего текста и markdown-тегов:
+{"n1": "обновленные факты о боте", "n2": "обновленные факты об игроке", "n3": "обновленные другие факты"}`;
+
+  const sys = `Ты — система памяти ИИ. Твоя задача читать текст и обновлять факты. Возвращай только валидный JSON.`;
+
+  try {
+    let reply = '';
+    if(role.model === 'deepseek') {
+       const res = await fetch('https://api.deepseek.com/chat/completions', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key}, body:JSON.stringify({model:'deepseek-flash', messages:[{role:'system', content:sys},{role:'user', content:prompt}], temperature:0.1})});
+       if(!res.ok) return;
+       const j = await res.json(); reply = j.choices[0].message.content.trim();
+    } else {
+       const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({system_instruction:{parts:[{text:sys}]}, contents:[{role:'user', parts:[{text:prompt}]}]})});
+       if(!res.ok) return;
+       const j = await res.json(); reply = j.candidates[0].content.parts[0].text.trim();
+    }
+    
+    reply = reply.replace(/```json/g, '').replace(/```/g, '').trim();
+    const parsed = JSON.parse(reply);
+    if(parsed.n1 !== undefined && parsed.n2 !== undefined && parsed.n3 !== undefined) {
+       await dbPut('notes', {roleId: currentRoleId, content: JSON.stringify(parsed)});
+    }
+  } catch(e) {
+    console.log("Не удалось авто-обновить блокноты:", e);
+  }
 }
 
 // --- ЧАТ ---
@@ -983,63 +1121,12 @@ async function generateBotReply(userDice = null){
     await dbAdd('messages',{roleId:currentRoleId,sender:'bot',text:reply,timestamp:Date.now(), diceRoll: botDice});
     await loadMessages(currentRoleId);
     
-    // Тихое обновление блокнотов
+    // Тихое обновление памяти и отношений
     updateNotesAuto(r, reply, last8);
+    updateRelationshipAuto(reply);
     
   }catch(e){
     document.getElementById('waitMsg')?.remove(); showAlert('Ошибка: '+e.message);
-  }
-}
-
-// Автоматическое обновление блокнотов
-async function updateNotesAuto(role, botReply, contextMsgs) {
-  const key = (role.model==='deepseek') ? settings.deepseek : settings.gemini;
-  if(!key) return;
-  
-  const notesData = await dbGet('notes', currentRoleId);
-  let currentNotesObj = {n1:'', n2:'', n3:''};
-  if(notesData && notesData.content) {
-     try { currentNotesObj = JSON.parse(notesData.content); } catch(e) { currentNotesObj.n3 = notesData.content; }
-  }
-  
-  let contextText = "";
-  contextMsgs.forEach(m => { contextText += `${m.sender === 'user' ? 'Игрок' : 'Бот'}: ${m.text}\n`; });
-  contextText += `Бот: ${botReply}\n`;
-
-  const prompt = `Проанализируй последние сообщения в ролевой и обнови блокноты памяти. 
-Текущий блокнот "О персонаже (Боте)": ${currentNotesObj.n1}
-Текущий блокнот "О персонаже (Игрока)": ${currentNotesObj.n2}
-Текущий блокнот "Другое (Мир, события)": ${currentNotesObj.n3}
-
-Последние сообщения:
-${contextText}
-
-Верни ответ СТРОГО в формате JSON без лишнего текста, markdown-тегов (без \`\`\`json) и комментариев:
-{"n1": "обновленные факты о боте", "n2": "обновленные факты об игроке", "n3": "обновленные другие факты"}`;
-
-  const sys = `Ты — система памяти ИИ. Твоя задача читать текст и обновлять факты. Возвращай только валидный JSON.`;
-
-  try {
-    let reply = '';
-    if(role.model === 'deepseek') {
-       const res = await fetch('https://api.deepseek.com/chat/completions', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key}, body:JSON.stringify({model:'deepseek-flash', messages:[{role:'system', content:sys},{role:'user', content:prompt}], temperature:0.1})});
-       if(!res.ok) return;
-       const j = await res.json(); reply = j.choices[0].message.content.trim();
-    } else {
-       const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({system_instruction:{parts:[{text:sys}]}, contents:[{role:'user', parts:[{text:prompt}]}]})});
-       if(!res.ok) return;
-       const j = await res.json(); reply = j.candidates[0].content.parts[0].text.trim();
-    }
-    
-    // Очистка от markdown, если ИИ все равно их добавил
-    reply = reply.replace(/```json/g, '').replace(/```/g, '').trim();
-    
-    const parsed = JSON.parse(reply);
-    if(parsed.n1 !== undefined && parsed.n2 !== undefined && parsed.n3 !== undefined) {
-       await dbPut('notes', {roleId: currentRoleId, content: JSON.stringify(parsed)});
-    }
-  } catch(e) {
-    console.log("Не удалось авто-обновить блокноты (возможно, ИИ вернул не JSON):", e);
   }
 }
 
@@ -1051,7 +1138,7 @@ async function callAI(role, contextMsgs, extraInstruction, key){
       const parsed = JSON.parse(notesData.content);
       mem1 = parsed.n1 || ''; mem2 = parsed.n2 || ''; mem3 = parsed.n3 || '';
     } catch(e) {
-      mem3 = notesData.content; // Совместимость со старым форматом
+      mem3 = notesData.content;
     }
   }
   
@@ -1111,6 +1198,7 @@ ${extraInstruction ? `\nСПЕЦИАЛЬНАЯ ИНСТРУКЦИЯ: ${extraInst
 window.toggleChatMenu = toggleChatMenu;
 window.openQuests = openQuests;
 window.openNotes = openNotes;
+window.openRelationship = openRelationship;
 window.editCurrentRole = editCurrentRole;
 window.switchNoteTab = switchNoteTab;
 window.saveAllNotes = saveAllNotes;
@@ -1161,4 +1249,4 @@ initDB().then(async()=>{
 document.getElementById('chatInput')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 </script>
 </body>
-      </html>
+  </html>
