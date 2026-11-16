@@ -341,6 +341,7 @@ input,textarea,select,button{font-family:inherit}
       <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_strong_conflict')">Сильный конфликт</button>
       <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_conflict')">Конфликт</button>
       <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_good')">Улучшение отношений</button>
+      <button class="btn btn-small btn-secondary" onclick="generateQuest('rel_lewd')" style="color:#f06292;">Пошлее</button>
     </div>
     <div id="questListContainer" class="quest-list"></div>
     <button class="btn-secondary" onclick="closeQuests()" style="text-align:center;margin-top:8px;background:transparent;border:none;">Закрыть</button>
@@ -974,6 +975,7 @@ async function generateQuest(type, isRework = false) {
   else if(type === 'rel_strong_conflict') prompt = 'Придумай событие, которое вызовет сильный конфликт между главным NPC и персонажем игрока, опираясь на последние события. Напиши только суть события в одном предложении.';
   else if(type === 'rel_conflict') prompt = 'Придумай событие, которое вызовет небольшой конфликт между главным NPC и персонажем игрока, опираясь на последние события. Напиши только суть события в одном предложении.';
   else if(type === 'rel_good') prompt = 'Придумай событие, которое улучшит отношения между главным NPC и персонажем игрока, опираясь на последние события. Напиши только суть события в одном предложении.';
+  else if(type === 'rel_lewd') prompt = 'Придумай событие, которое спровоцирует главного NPC на откровенные, пошлые и развязные действия по отношению к персонажу игрока, опираясь на последние события. Напиши только суть события в одном предложении.';
 
   const sys = `Ты — генератор сюжетных идей. Твоя задача придумать одно короткое предложение, которое идеально впишется в текущий момент истории. Не пиши приветствий, не объясняй. Только суть.`;
   
